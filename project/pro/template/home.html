@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="{% static 'css/s.css'%}">
+  </head>
+  <body>
+    <h3>HOME PAGE</h3>
+    <br>
+    {% for row in rows%}
+    {% for col in cols %}
+      <button type="button" name="button{{i}}" id='b {{row}} {{col}}' onClick="base('b {{row}} {{col}}')" ></button>
+    {%endfor%}
+    {% endfor%}
+
+  </body>
+
+
+<script type="text/javascript">
+
+            function base(id)
+              {
+                var col=id.split(' ',3)[2];
+                var row=id.split(' ',3)[1];
+                var r=parseInt(row);
+                var c=parseInt(col);
+                doc=document.getElementById(id);
+                doc.style.backgroundColor='yellow';
+                doc.style.backgroundColor='red';
+                console.log('b '+(r+1)+' '+(c));
+                fun1('b '+(r+1)+' '+(c),r,c);
+                fun2('b '+(r-1)+' '+(c),r,c);
+                fun3('b '+(r)+' '+(c-1),r,c);
+                fun4('b '+(r)+' '+(c+1),r,c);
+              }
+              function fun1(id,ro,co)
+              {
+                doc=document.getElementById(id);
+                console.log('fun is called');
+                doc.style.backgroundColor='yellow';
+                var col=id.split(' ',3)[2];
+                var row=id.split(' ',3)[1];
+                var r=parseInt(row);
+                var c=parseInt(col);
+                console.log(r)
+                console.log(c);
+                if(r>ro && ((r<=20)||(r>=1)))
+                    {
+                      if(c>co && ((c<=44)||(c>=1)))
+                    {
+
+                        setInterval( function() { fun('b '+(r+1)+' '+(c),ro,co); }, 350 );
+                        setInterval( function() { fun('b '+(r)+' '+(c+1),ro,co); }, 350 );
+
+
+                    }
+                    else if( c<co &&( (c<=44)||(c>=1)))
+                      {
+
+                        setInterval( function() { fun('b '+(r+1)+' '+(c),ro,co); }, 350 );
+                        setInterval( function() { fun('b '+(r)+' '+(c-1),ro,co); }, 350 );
+
+
+
+                      }
+                    }
+            else
+              {setInterval( function() { fun('b '+(r-1)+' '+(c),ro,co); }, 350 );
+              setInterval( function() { fun('b '+(r)+' '+(c-1),ro,co); }, 350 );
+              }
+              }
+
+
+</script>
+
+
+
+</html>
