@@ -6,12 +6,13 @@
     <title></title>
     <link rel="stylesheet" href="{% static 'css/s.css'%}">
   </head>
-  <body onload="myFunction()">
-    <h3>HOME PAGE</h3>
+  <body >
+    <button onclick="myFunction()" style='width:500px;height:40px;background-color:green'>Try it</button>
+
     <br>
     {% for row in rows%}
     {% for col in cols %}
-      <button type="button" name="button{{i}}" id='b_{{row}}_{{col}}' onClick="base('b {{row}} {{col}}')" ></button>
+      <button type="button"  id='b_{{row}}_{{col}}' ></button>
     {%endfor%}
     {% endfor%}
 
@@ -88,8 +89,6 @@ djikstraAlgorithm(startNode) {
             distances[neighbor.node] = alt;
             prev[neighbor.node] = currNode;
             pq.enqueue(neighbor.node, distances[neighbor.node]);
-          //  console.log(neighbor.node);
-            document.getElementById(neighbor.node).style.backgroundColor='yellow';
 
          }
 
@@ -236,12 +235,26 @@ function myFunction() {
   console.log(g.djikstraAlgorithm("b_1_1"));
   distances=g.djikstraAlgorithm("b_1_1");
 
+  var myVar;
 
-//alert(distances[1][0]);
+ for (item in distances)
+ {
+ myVar = setTimeout(function(){alertFunc(distances[item][0])}, item*200);
+   console.log(distances[item][0]+" have been colored");
+ }
+  document.getElementById("b_1_1").style.backgroundColor='blue';
+
 
 }
 
+/////////////////////////////////////
 
+
+function alertFunc(id) {
+document.getElementById(id).style.backgroundColor='red';
+}
+
+/////////////////////////////////////
 
 </script>
 
