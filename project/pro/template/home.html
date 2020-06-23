@@ -22,7 +22,8 @@
 
 //////////////////////////////////
 <script type="text/javascript">
-
+var start;
+var final;
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
@@ -57,7 +58,7 @@ class Graph {
       let graph = ""; this.nodes.forEach(node => {
          graph += node + "->" + this.edges[node].join(", ") + "\n";
       });
-      console.log(graph);
+  //    console.log(graph);
    }
 
 
@@ -78,7 +79,7 @@ class PriorityQueue {
    }
    // Helper function to display all values while developing
    display() {
-      console.log(this.container);
+  //    console.log(this.container);
    }
    // Checks if queue is empty
    isEmpty() {
@@ -176,11 +177,12 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+var prev = {};
 function djikstraAlgorithm(startNode) {
    let distances = {};
 
    // Stores the reference to previous nodes
-   let prev = {};
+
    let pq = new PriorityQueue(g.nodes.length * g.nodes.length);
 
    // Set distances to all nodes to be infinite except startNode
@@ -233,43 +235,136 @@ function djikstraAlgorithm(startNode) {
 
 
 async function myFunction() {
-console.log('hapdadjwdwabwdh');
-  console.log(djikstraAlgorithm("b_7_12"));
-  distances=djikstraAlgorithm("b_7_12");
-console.log('hapdadjwdwabwdh');
-  var myVar;
+//console.log('hapdadjwdwabwdh');
+  console.log(djikstraAlgorithm(start));
+  distances=djikstraAlgorithm(start);
+//console.log('hapdadjwdwabwdh');
 
+var x = document.querySelectorAll("button");
+
+ for (i = 1; i < x.length; i++) {
+   x[i].style.backgroundColor = "white";
+ }
+
+document.getElementById(start).style.backgroundColor='blue';
+document.getElementById(final).style.backgroundColor='red';
  for (item in distances)
  {
  //myVar = setTimeout(function(){alertFunc(distances[item][0]);},200);
-
+if(distances[item][1]!=Infinity)
+{
+  console.log('------------------------------'+distances[item][0]+' is #feceabdlist');
  setTimeout(function () {
-  // console.log('alter is going to call for '+distances[item][0]);
+   console.log('alter is going to call for '+distances[item][0]);
    alertFunc(distances[item][0]);
- }, 2);
-
- await sleep(3);
- if(distances[item][0]=='b_11_32')
+ }, 10);
+}
+ await sleep(11);
+ if(distances[item][0]==final)
  {
-  document.getElementById(distances[item][0]).style.backgroundColor='green';
+  document.getElementById(distances[item][0]).style.backgroundColor='red';
    break;
  }
  }
 
-  document.getElementById("b_7_12").style.backgroundColor='blue';
+  document.getElementById(start).style.backgroundColor='blue';
+//console.log(prev);
+  curr=final;
+//  console.log('----------------------------------------------the prev of final:');
+  if(prev[final]==null)
+    {
+      alert('TARGET CANNOT BE REACHED');
+    }
+    else {
+      while(prev[curr]!=null)
+        {
+          document.getElementById(prev[curr]).style.backgroundColor='#b6eb7a';
+         curr=prev[curr];
+        }
+    }
+ document.getElementById(curr).style.backgroundColor='blue';
+
 
 
 }
 
 
 function alertFunc(id) {
-console.log(id+'is entered');
-document.getElementById(id).style.backgroundColor='red';
+  console.log('------------------------------'+id+'---------------------------');
+  if(id!=start)
+document.getElementById(id).style.backgroundColor='#a6dcef';
 }
+
 
 </script>
 
+<script type="text/javascript">
+var wall=[];
+document.addEventListener('click', function(e) {
+  e = e;
+  var target = e.target;
+  console.log('THIs  thing have been pressed');
+//  console.log(e.which);
+  if(target.id.slice(0,1)=='b')
+      {
 
+        if(start && final)
+        {
+
+                  wall.push(target.id);
+
+
+        }
+        if (start)
+      {
+        if(!final)
+        {
+
+          final=target.id;
+          document.getElementById(final).style.backgroundColor='red';
+        }
+      }
+      else {
+        start=target.id;
+        document.getElementById(start).style.backgroundColor='blue';
+      }
+
+
+      }
+
+      for (item in wall)
+        {
+          document.getElementById(wall[item]).style.backgroundColor='Black';
+
+
+          nearest=g.edges[wall[item]];
+          for (i in nearest)
+          {
+            nearest[i].weight=Infinity;
+
+
+          }
+
+        }
+        for(k in g.edges)
+        {
+          for(t in g.edges[k])
+            {
+              if(wall.includes(g.edges[k][t].node))
+              {
+                g.edges[k][t].weight=Infinity;
+
+              }
+            }
+
+
+        }
+
+}, false);
+
+
+
+</script>
 
 
 </html>
