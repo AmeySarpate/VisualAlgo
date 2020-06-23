@@ -6,74 +6,245 @@
     <title></title>
     <link rel="stylesheet" href="{% static 'css/s.css'%}">
   </head>
-  <body>
+  <body onload="myFunction()">
     <h3>HOME PAGE</h3>
     <br>
     {% for row in rows%}
     {% for col in cols %}
-      <button type="button" name="button{{i}}" id='b {{row}} {{col}}' onClick="base('b {{row}} {{col}}')" ></button>
+      <button type="button" name="button{{i}}" id='b_{{row}}_{{col}}' onClick="base('b {{row}} {{col}}')" ></button>
     {%endfor%}
     {% endfor%}
 
   </body>
 
 
+
+//////////////////////////////////
 <script type="text/javascript">
 
-            function base(id)
-              {
-                var col=id.split(' ',3)[2];
-                var row=id.split(' ',3)[1];
-                var r=parseInt(row);
-                var c=parseInt(col);
-                doc=document.getElementById(id);
-                doc.style.backgroundColor='yellow';
-                doc.style.backgroundColor='red';
-                console.log('b '+(r+1)+' '+(c));
-                fun1('b '+(r+1)+' '+(c),r,c);
-                fun2('b '+(r-1)+' '+(c),r,c);
-                fun3('b '+(r)+' '+(c-1),r,c);
-                fun4('b '+(r)+' '+(c+1),r,c);
-              }
-              function fun1(id,ro,co)
-              {
-                doc=document.getElementById(id);
-                console.log('fun is called');
-                doc.style.backgroundColor='yellow';
-                var col=id.split(' ',3)[2];
-                var row=id.split(' ',3)[1];
-                var r=parseInt(row);
-                var c=parseInt(col);
-                console.log(r)
-                console.log(c);
-                if(r>ro && ((r<=20)||(r>=1)))
-                    {
-                      if(c>co && ((c<=44)||(c>=1)))
-                    {
 
-                        setInterval( function() { fun('b '+(r+1)+' '+(c),ro,co); }, 350 );
-                        setInterval( function() { fun('b '+(r)+' '+(c+1),ro,co); }, 350 );
-
-
-                    }
-                    else if( c<co &&( (c<=44)||(c>=1)))
-                      {
-
-                        setInterval( function() { fun('b '+(r+1)+' '+(c),ro,co); }, 350 );
-                        setInterval( function() { fun('b '+(r)+' '+(c-1),ro,co); }, 350 );
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
 
 
 
-                      }
-                    }
-            else
-              {setInterval( function() { fun('b '+(r-1)+' '+(c),ro,co); }, 350 );
-              setInterval( function() { fun('b '+(r)+' '+(c-1),ro,co); }, 350 );
-              }
-              }
+class Graph {
+   constructor() {
+      this.edges = {};
+      this.nodes = [];
+   }
+   addNode(node) {
+      this.nodes.push(node);
+      this.edges[node] = [];
+   }
+   addEdge(node1, node2) {
+      this.edges[node1].push(node2);
+      this.edges[node2].push(node1);
+   }
+
+   addDirectedEdge(node1, node2, weight = 1) {
+       this.edges[node1].push({ node: node2, weight: weight });
+    }
+
+   display() {
+      let graph = ""; this.nodes.forEach(node => {
+         graph += node + "->" + this.edges[node].join(", ") + "\n";
+      });
+      console.log(graph);
+   }
+
+
+
+
+
+djikstraAlgorithm(startNode) {
+   let distances = {};
+
+   // Stores the reference to previous nodes
+   let prev = {};
+   let pq = new PriorityQueue(this.nodes.length * this.nodes.length);
+
+   // Set distances to all nodes to be infinite except startNode
+   distances[startNode] = 0;
+   pq.enqueue(startNode, 0);
+   this.nodes.forEach(node => {
+      if (node !== startNode) distances[node] = Infinity;
+      prev[node] = null;
+   });
+
+   while (!pq.isEmpty()) {
+      let minNode = pq.dequeue();
+      let currNode = minNode.data;
+      let weight = minNode.priority;
+      this.edges[currNode].forEach(neighbor => {
+         let alt = distances[currNode] + neighbor.weight;
+         if (alt < distances[neighbor.node]) {
+            distances[neighbor.node] = alt;
+            prev[neighbor.node] = currNode;
+            pq.enqueue(neighbor.node, distances[neighbor.node]);
+          //  console.log(neighbor.node);
+            document.getElementById(neighbor.node).style.backgroundColor='yellow';
+
+         }
+
+      });
+
+
+   }
+
+
+
+   var maxSpeed = {
+   car: 300,
+   bike: 60,
+   motorbike: 200,
+   airplane: 1000,
+   helicopter: 400,
+   rocket: 8 * 60 * 60
+  };
+  var sortable = [];
+  for (var vehicle in distances) {
+     sortable.push([vehicle, distances[vehicle]]);
+  }
+
+  sortable.sort(function(a, b) {
+     return a[1] - b[1];
+    });
+
+
+
+
+
+  return sortable;
+  // return distances;
+}
+}
+class PriorityQueue {
+   constructor(maxSize) {
+      // Set default max size if not provided
+      if (isNaN(maxSize)) {
+         maxSize = 10;
+       }
+      this.maxSize = maxSize;
+      // Init an array that'll contain the queue values.
+      this.container = [];
+   }
+   // Helper function to display all values while developing
+   display() {
+      console.log(this.container);
+   }
+   // Checks if queue is empty
+   isEmpty() {
+      return this.container.length === 0;
+   }
+   // checks if queue is full
+   isFull() {
+      return this.container.length >= this.maxSize;
+   }
+   enqueue(data, priority) {
+      // Check if Queue is full
+      if (this.isFull()) {
+         console.log("Queue Overflow!");
+         return;
+      }
+      let currElem = new this.Element(data, priority);
+      let addedFlag = false;
+      // Since we want to add elements to end, we'll just push them.
+      for (let i = 0; i < this.container.length; i++) {
+         if (currElem.priority < this.container[i].priority) {
+            this.container.splice(i, 0, currElem);
+            addedFlag = true; break;
+         }
+      }
+      if (!addedFlag) {
+         this.container.push(currElem);
+      }
+   }
+   dequeue() {
+   // Check if empty
+   if (this.isEmpty()) {
+      console.log("Queue Underflow!");
+      return;
+   }
+   return this.container.pop();
+}
+peek() {
+   if (isEmpty()) {
+      console.log("Queue Underflow!");
+      return;
+   }
+   return this.container[this.container.length - 1];
+}
+clear() {
+   this.container = [];
+   }
+}
+// Create an inner class that we'll use to create new nodes in the queue
+// Each element has some data and a priority
+PriorityQueue.prototype.Element = class {
+   constructor(data, priority) {
+      this.data = data;
+      this.priority = priority;
+   }
+};
+
+
+
+
+let g = new Graph();
+
+for(let i=1;i<=20;i++)
+  {
+  for(let j=1;j<=44;j++)
+    {
+    g.addNode('b_'+i+'_'+j);
+    }
+  }
+
+
+
+  for(let i=1;i<=20;i++)
+    {
+    for(let j=1;j<=43;j++)
+      {
+      g.addDirectedEdge('b_'+i+'_'+j,'b_'+i+'_'+(j+1),1);
+      g.addDirectedEdge('b_'+i+'_'+(j+1),'b_'+i+'_'+j,1);
+
+      }
+    }
+    for(let i=1;i<=44;i++)
+      {
+      for(let j=1;j<=19;j++)
+        {
+        g.addDirectedEdge('b_'+j+'_'+i,'b_'+(j+1)+'_'+(i),1);
+        g.addDirectedEdge('b_'+(j+1)+'_'+(i),'b_'+j+'_'+i,1);
+        }
+      }
+
+//console.log(g.edges)
+
+
+
+function myFunction() {
+
+  console.log(g.djikstraAlgorithm("b_1_1"));
+  distances=g.djikstraAlgorithm("b_1_1");
+
+
+//alert(distances[1][0]);
+
+}
+
 
 
 </script>
+
 
 
 
