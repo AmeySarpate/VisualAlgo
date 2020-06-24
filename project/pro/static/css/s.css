@@ -1,8 +1,8 @@
 
 button
 {
-  width:30px;
-  height: 30px;
+  width:15px;
+  height: 15px;
   background-color: white;
   border:0.3px solid black;
   padding: 0;
@@ -16,3 +16,18 @@ button
    -o-user-select:none;
 
 }
+div
+{
+}
+table {
+  border-collapse: collapse;
+}
+
+td {
+  border: 1px solid black;
+}
+ td
+ {
+   margin:0px;
+   padding:0px;
+ }
