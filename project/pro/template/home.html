@@ -15,7 +15,7 @@
     {% for col in cols %}
 
       <button type="button"  id='b_{{row}}_{{col}}' >
-          <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px auto 0px auto  ;width:30px;height:30px;display:block;'></div>
+          <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px auto 0px auto  ;width:30px;height:30px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
       </button>
 
@@ -29,7 +29,8 @@
 <script type="text/javascript">
 var start;
 var final;
-
+var clicked;
+var wall=[];
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -65,7 +66,54 @@ class Graph {
       });
   //    console.log(graph);
    }
+   djikstraAlgorithm(startNode) {
+      let distances = {};
 
+      // Stores the reference to previous nodes
+
+      let pq = new PriorityQueue(this.nodes.length * this.nodes.length);
+
+      // Set distances to all nodes to be infinite except startNode
+      distances[startNode] = 0;
+      pq.enqueue(startNode, 0);
+      this.nodes.forEach(node => {
+         if (node !== startNode) distances[node] = Infinity;
+         prev[node] = null;
+      });
+
+      while (!pq.isEmpty()) {
+         let minNode = pq.dequeue();
+         let currNode = minNode.data;
+         let weight = minNode.priority;
+         this.edges[currNode].forEach(neighbor => {
+            let alt = distances[currNode] + neighbor.weight;
+            if (alt < distances[neighbor.node]) {
+               distances[neighbor.node] = alt;
+               prev[neighbor.node] = currNode;
+               pq.enqueue(neighbor.node, distances[neighbor.node]);
+
+            }
+
+         });
+
+
+      }
+
+     var sortable = [];
+     for (var vehicle in distances) {
+        sortable.push([vehicle, distances[vehicle]]);
+     }
+
+     sortable.sort(function(a, b) {
+        return a[1] - b[1];
+       });
+
+
+
+
+
+     return sortable;
+   }
 
 
 
@@ -144,8 +192,57 @@ PriorityQueue.prototype.Element = class {
 
 
 
-let g = new Graph();
+// var g = new Graph();
+//
+// for(let i=1;i<=20;i++)
+//   {
+//   for(let j=1;j<=44;j++)
+//     {
+//     g.addNode('b_'+i+'_'+j);
+//     }
+//   }
+//
+//
+//
+//   for(let i=1;i<=20;i++)
+//     {
+//     for(let j=1;j<=43;j++)
+//       {
+//       g.addDirectedEdge('b_'+i+'_'+j,'b_'+i+'_'+(j+1),1);
+//       g.addDirectedEdge('b_'+i+'_'+(j+1),'b_'+i+'_'+j,1);
+//
+//       }
+//     }
+//     for(let i=1;i<=44;i++)
+//       {
+//       for(let j=1;j<=19;j++)
+//         {
+//         g.addDirectedEdge('b_'+j+'_'+i,'b_'+(j+1)+'_'+(i),1);
+//         g.addDirectedEdge('b_'+(j+1)+'_'+(i),'b_'+j+'_'+i,1);
+//         }
+//       }
 
+//console.log(g.edges)
+
+/////////////////////////////////////////////////////////////////////////
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+var prev = {};
+
+
+
+async function myFunction() {
+var x = document.querySelectorAll("div");
+  for (i = 1; i < x.length; i++) {
+     x[i].style.backgroundColor = "white";
+   }
+
+///////////////////////////////////////////ecprer||||||||||||||||||||||||||||||||||||||||
+
+let g=new Graph();
 for(let i=1;i<=20;i++)
   {
   for(let j=1;j<=44;j++)
@@ -174,76 +271,41 @@ for(let i=1;i<=20;i++)
         }
       }
 
-//console.log(g.edges)
-
-/////////////////////////////////////////////////////////////////////////
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-var prev = {};
-function djikstraAlgorithm(startNode) {
-   let distances = {};
-
-   // Stores the reference to previous nodes
-
-   let pq = new PriorityQueue(g.nodes.length * g.nodes.length);
-
-   // Set distances to all nodes to be infinite except startNode
-   distances[startNode] = 0;
-   pq.enqueue(startNode, 0);
-   g.nodes.forEach(node => {
-      if (node !== startNode) distances[node] = Infinity;
-      prev[node] = null;
-   });
-
-   while (!pq.isEmpty()) {
-      let minNode = pq.dequeue();
-      let currNode = minNode.data;
-      let weight = minNode.priority;
-      g.edges[currNode].forEach(neighbor => {
-         let alt = distances[currNode] + neighbor.weight;
-         if (alt < distances[neighbor.node]) {
-            distances[neighbor.node] = alt;
-            prev[neighbor.node] = currNode;
-            pq.enqueue(neighbor.node, distances[neighbor.node]);
-
-         }
-
-      });
+///////////////////////////|||||||||||||||||||
 
 
-   }
 
-  var sortable = [];
-  for (var vehicle in distances) {
-     sortable.push([vehicle, distances[vehicle]]);
+
+
+for (item in wall)
+  {
+    document.getElementById('div'+wall[item].slice(1,)).style.backgroundColor='black';
+  console.log('color changed to black '+wall[item]);
+
+    nearest=g.edges[wall[item]];
+    for (i in nearest)
+    {
+      nearest[i].weight=Infinity;
+
+
+    }
+
   }
+  for(k in g.edges)
+  {
+    for(t in g.edges[k])
+      {
+        if(wall.includes(g.edges[k][t].node))
+        {
+          g.edges[k][t].weight=Infinity;
 
-  sortable.sort(function(a, b) {
-     return a[1] - b[1];
-    });
-
-
-
-
-
-  return sortable;
-}
-
+        }
+      }
 
 
-
-
-///////////////////////////////////////////////////////////////////////
-
-
-async function myFunction() {
-//console.log('hapdadjwdwabwdh');
-  console.log(djikstraAlgorithm(start));
-  distances=djikstraAlgorithm(start);
-//console.log('hapdadjwdwabwdh');
+  }
+  console.log(g.djikstraAlgorithm(start));
+  distances=g.djikstraAlgorithm(start);
 
 var x = document.querySelectorAll("button");
 
@@ -255,27 +317,22 @@ document.getElementById(start).style.backgroundColor='blue';
 document.getElementById(final).style.backgroundColor='red';
  for (item in distances)
  {
- //myVar = setTimeout(function(){alertFunc(distances[item][0]);},200);
 if(distances[item][1]!=Infinity)
 {
-  console.log('------------------------------'+distances[item][0]+' is #feceabdlist');
  setTimeout(function () {
-   console.log('alter is going to call for '+distances[item][0]);
-   alertFunc(distances[item][0]);
+   alertFunc('div'+distances[item][0].slice(1,));
  }, 10);
 }
  await sleep(11);
  if(distances[item][0]==final)
  {
-  document.getElementById(distances[item][0]).style.backgroundColor='red';
+  document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='red';
    break;
  }
  }
 
-  document.getElementById(start).style.backgroundColor='blue';
-//console.log(prev);
+  document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
   curr=final;
-//  console.log('----------------------------------------------the prev of final:');
   if(prev[final]==null)
     {
       alert('TARGET CANNOT BE REACHED');
@@ -283,11 +340,11 @@ if(distances[item][1]!=Infinity)
     else {
       while(prev[curr]!=null)
         {
-          document.getElementById(prev[curr]).style.backgroundColor='#b6eb7a';
+          document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
          curr=prev[curr];
         }
     }
- document.getElementById(curr).style.backgroundColor='blue';
+ document.getElementById('div'+curr.slice(1,)).style.backgroundColor='blue';
 
 
 
@@ -295,78 +352,10 @@ if(distances[item][1]!=Infinity)
 
 
 function alertFunc(id) {
-  console.log('------------------------------'+id+'---------------------------');
+//  console.log('------------------------------'+id+'---------------------------');
   if(id!=start)
 document.getElementById(id).style.backgroundColor='#a6dcef';
 }
-
-
-</script>
-
-<script type="text/javascript">
-var wall=[];
-document.addEventListener('click', function(e) {
-  e = e;
-  var target = e.target;
-  console.log('THIs  thing have been pressed'+target.id);
-//  console.log(e.which);
-  if(target.id.slice(0,3)=='div')
-      {
-
-        if(start && final)
-        {
-
-                  wall.push('b'+target.id.slice(3,));
-
-
-        }
-      //   if (start)
-      // {
-      //   if(!final)
-      //   {
-      //
-      //     final='b'+target.id.slice(3,);
-      //     document.getElementById(final).style.backgroundColor='red';
-      //   }
-      // }
-      // else {
-      //   start='b'+target.id.slice(3,);
-      //   document.getElementById(start).style.backgroundColor='blue';
-      // }
-
-
-      }
-
-      for (item in wall)
-        {
-          document.getElementById(wall[item]).style.backgroundColor='Black';
-
-
-          nearest=g.edges[wall[item]];
-          for (i in nearest)
-          {
-            nearest[i].weight=Infinity;
-
-
-          }
-
-        }
-        for(k in g.edges)
-        {
-          for(t in g.edges[k])
-            {
-              if(wall.includes(g.edges[k][t].node))
-              {
-                g.edges[k][t].weight=Infinity;
-
-              }
-            }
-
-
-        }
-
-}, false);
-
 
 
 </script>
@@ -375,41 +364,93 @@ document.addEventListener('click', function(e) {
 
 
 <script>
-function allowDrop(ev) {
-  ev.preventDefault();
-}
-
-function drag(ev) {
-  ev.dataTransfer.setData("text", ev.target.id);
-  console.log('Drag is happening');
-
-}
-
-function drop(ev) {
-  ev.preventDefault();
-  var data = ev.dataTransfer.getData("text");
-  console.log('in drop data=');
-  ev.target.appendChild(document.getElementById(data));
-  console.log('Drop method called');
-//  start=ev.target.id;
-  var div_id=ev.target.id;
-  var b_id='b'+div_id.slice(3,);
-  console.log('this is the button id of the droped flag'+b_id);
-  if(data=='start')
+function allowDrop(ev)
   {
+    ev.preventDefault();
+  }
 
-    start=b_id;
-    console.log('redfinging the start');
-  }
-  else if(data=='end')
+function drag(ev)
   {
-  console.log('radifing the final');
-    final=b_id;
+    ev.dataTransfer.setData("text", ev.target.id);
+    console.log('Drag is happening');
   }
-}
+
+function drop(ev)
+  {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+    console.log('Drop method called');
+    var div_id=ev.target.id;
+    var b_id='b'+div_id.slice(3,);
+    if(data=='start')
+    {
+
+      start=b_id;
+    }
+    else if(data=='end')
+    {
+      final=b_id;
+    }
+  }
 </script>
+<!-- //////////////////////  this is war wall   //////////////////////////////// -->
+<script type="text/javascript">
 
+function mousedown(e)
+  {
+    if(e.button==0)
+      {
+        clicked=true;
+        if(wall.includes('b'+e.target.id.slice(3,)))
+          {
+            document.getElementById(e.target.id).style.backgroundColor='white';
+            var ind=wall.indexOf('b'+e.target.id.slice(3,));
+            if (ind > -1)
+              {
+                wall.splice(ind, 1);
+              }
+          }
+        else
+           {
+            document.getElementById(e.target.id).style.backgroundColor='violet';
+            wall.push('b'+e.target.id.slice(3,));
+           }
+      }
+  }
 
+function mouseup(e)
+  {
+    if(e.button==0)
+      {
+        clicked=false;
+      }
+  }
+
+function entering(e)
+  {
+    var b_id='b'+e.target.id.slice(3,);
+    if(clicked==true)
+      {
+        if(wall.includes(b_id))
+          {
+            var ind=wall.indexOf(b_id);
+            if (ind > -1)
+              {
+                wall.splice(ind, 1);
+              }
+            document.getElementById(e.target.id).style.backgroundColor='white';
+            console.log(wall);
+          }
+        else
+         {
+           wall.push(b_id);
+           document.getElementById(e.target.id).style.backgroundColor='violet';
+         }
+    }
+}
+
+</script>
 
 
 
