@@ -11,16 +11,20 @@
     <img id='start' src="{% static 'images/start.png'%}" alt="Photo" width='16px' height='26px' style='margin:0;' draggable="true" ondragstart="drag(event)">
     <img id='end' src="{% static 'images/end.png'%}" alt="Photo" width='16px' height='26px' style='margin:0;' draggable="true" ondragstart="drag(event)">
     <br>
-    {% for row in rows%}
-    {% for col in cols %}
+    <div id='graph'unselectable="on"
+ onselectstart="return false;" >
+      {% for row in rows%}
+      {% for col in cols %}
 
-      <button type="button"  id='b_{{row}}_{{col}}' >
-          <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px auto 0px auto  ;width:30px;height:30px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
+        <button type="button"  id='b_{{row}}_{{col}}' >
+            <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px auto 0px auto  ;width:30px;height:30px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
-      </button>
+        </button>
 
-    {%endfor%}
-    {% endfor%}
+      {%endfor%}
+      {% endfor%}
+    </div>
+
 
   </body>
 
@@ -29,8 +33,16 @@
 <script type="text/javascript">
 var start;
 var final;
-var clicked;
+var lclicked;
+var rclicked;
 var wall=[];
+var imagedragging=false;
+
+var x = document.querySelectorAll("div");
+  for (i = 1; i < x.length; i++) {
+     x[i].style.backgroundColor = "white";
+   }
+
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -190,42 +202,6 @@ PriorityQueue.prototype.Element = class {
 };
 
 
-
-
-// var g = new Graph();
-//
-// for(let i=1;i<=20;i++)
-//   {
-//   for(let j=1;j<=44;j++)
-//     {
-//     g.addNode('b_'+i+'_'+j);
-//     }
-//   }
-//
-//
-//
-//   for(let i=1;i<=20;i++)
-//     {
-//     for(let j=1;j<=43;j++)
-//       {
-//       g.addDirectedEdge('b_'+i+'_'+j,'b_'+i+'_'+(j+1),1);
-//       g.addDirectedEdge('b_'+i+'_'+(j+1),'b_'+i+'_'+j,1);
-//
-//       }
-//     }
-//     for(let i=1;i<=44;i++)
-//       {
-//       for(let j=1;j<=19;j++)
-//         {
-//         g.addDirectedEdge('b_'+j+'_'+i,'b_'+(j+1)+'_'+(i),1);
-//         g.addDirectedEdge('b_'+(j+1)+'_'+(i),'b_'+j+'_'+i,1);
-//         }
-//       }
-
-//console.log(g.edges)
-
-/////////////////////////////////////////////////////////////////////////
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -280,7 +256,7 @@ for(let i=1;i<=20;i++)
 for (item in wall)
   {
     document.getElementById('div'+wall[item].slice(1,)).style.backgroundColor='black';
-  console.log('color changed to black '+wall[item]);
+
 
     nearest=g.edges[wall[item]];
     for (i in nearest)
@@ -370,19 +346,22 @@ function allowDrop(ev)
   }
 
 function drag(ev)
-  {
+  {  imagedragging=true;
     ev.dataTransfer.setData("text", ev.target.id);
     console.log('Drag is happening');
+
   }
 
 function drop(ev)
   {
+  imagedragging=false;
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     ev.target.appendChild(document.getElementById(data));
     console.log('Drop method called');
     var div_id=ev.target.id;
     var b_id='b'+div_id.slice(3,);
+    lclicked=false;
     if(data=='start')
     {
 
@@ -399,39 +378,76 @@ function drop(ev)
 
 function mousedown(e)
   {
-    if(e.button==0)
+
+      var b_id='b'+e.target.id.slice(3,);
+    if(e.button==0 && (!imagedragging))
       {
-        clicked=true;
-        if(wall.includes('b'+e.target.id.slice(3,)))
+        lclicked=true;
+        if(!wall.includes('b'+e.target.id.slice(3,)) && e.target.id.slice(0,3)=='div')
           {
-            document.getElementById(e.target.id).style.backgroundColor='white';
-            var ind=wall.indexOf('b'+e.target.id.slice(3,));
-            if (ind > -1)
-              {
-                wall.splice(ind, 1);
-              }
-          }
-        else
-           {
-            document.getElementById(e.target.id).style.backgroundColor='violet';
+            // document.getElementById(e.target.id).style.backgroundColor='white';
+            // var ind=wall.indexOf('b'+e.target.id.slice(3,));
+            // if (ind > -1)
+            //   {
+            //     wall.splice(ind, 1);
+            //   }
+            if('b'+e.target.id.slice(3,)!=start && 'b'+e.target.id.slice(3,)!=final)
+            {
+
+                console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
+            document.getElementById(e.target.id).style.backgroundColor='black';
             wall.push('b'+e.target.id.slice(3,));
+          }
            }
       }
+      else if(e.button==2)
+        {
+          rclicked=true;
+          e.preventDefault();
+          if(wall.includes('b'+e.target.id.slice(3,)))
+            {
+              document.getElementById(e.target.id).style.backgroundColor='white';
+              var ind=wall.indexOf('b'+e.target.id.slice(3,));
+              if (ind > -1)
+                {
+                  wall.splice(ind, 1);
+                }
+            }
+        }
   }
 
 function mouseup(e)
   {
     if(e.button==0)
       {
-        clicked=false;
+        lclicked=false;
+      }
+    if(e.button==2)
+      {e.preventDefault();
+        rclicked=false;
       }
   }
 
 function entering(e)
   {
     var b_id='b'+e.target.id.slice(3,);
-    if(clicked==true)
+    if(lclicked==true && (!imagedragging) && e.target.id.slice(0,3)=='div')
       {
+        if(!wall.includes(b_id))
+          {
+          if(b_id!=start && b_id !=final)
+          {
+            console.log('entering s='+start+' f='+final+'  curr='+b_id);
+           wall.push(b_id);
+           document.getElementById(e.target.id).style.backgroundColor='black';
+
+
+          }
+         }
+    }
+    else if(rclicked==true && (!imagedragging))
+      {
+        e.preventDefault();
         if(wall.includes(b_id))
           {
             var ind=wall.indexOf(b_id);
@@ -442,14 +458,16 @@ function entering(e)
             document.getElementById(e.target.id).style.backgroundColor='white';
             console.log(wall);
           }
-        else
-         {
-           wall.push(b_id);
-           document.getElementById(e.target.id).style.backgroundColor='violet';
-         }
-    }
+      }
 }
 
+
+
+////////////////////////prevernting the right click default of the google chrome
+
+document.getElementById('graph').addEventListener('contextmenu', function(evt) {
+  evt.preventDefault();
+}, false);
 </script>
 
 
