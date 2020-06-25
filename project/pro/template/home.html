@@ -34,8 +34,7 @@
 
   </body>
 
-
-
+<!--varible declaration and initials-->
 <script type="text/javascript">
 var start;
 var final;
@@ -45,23 +44,19 @@ var rclicked;
 var wall=[];
 var imagedragging=false;
 var path=[];
+var path2=[];
+var prev=[];
+var animate=false;
 
 var x = document.querySelectorAll("div");
   for (i = 1; i < x.length; i++) {
      x[i].style.backgroundColor = "white";
    }
 
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
+</script>
 
-
-
+<!-- class declaration -->
+<script type="text/javascript">
 class Graph {
    constructor() {
       this.edges = {};
@@ -113,33 +108,17 @@ class Graph {
                pq.enqueue(neighbor.node, distances[neighbor.node]);
 
             }
-
          });
-
-
       }
 
-     var sortable = [];
-     for (var vehicle in distances) {
-        sortable.push([vehicle, distances[vehicle]]);
-     }
-
-     sortable.sort(function(a, b) {
-        return a[1] - b[1];
-       });
-
-
-
-
-
-     return sortable;
+      var sortable = [];
+      for (var n in distances) {sortable.push([n, distances[n]]);}
+      sortable.sort(function(a, b) {return a[1] - b[1];});
+      return sortable;
    }
-
-
-
-
-
 }
+
+
 class PriorityQueue {
    constructor(maxSize) {
       // Set default max size if not provided
@@ -188,37 +167,77 @@ class PriorityQueue {
       return;
    }
    return this.container.pop();
-}
-peek() {
+  }
+  peek() {
    if (isEmpty()) {
       console.log("Queue Underflow!");
       return;
    }
    return this.container[this.container.length - 1];
-}
-clear() {
+  }
+  clear() {
    this.container = [];
    }
 }
-// Create an inner class that we'll use to create new nodes in the queue
-// Each element has some data and a priority
+
+
 PriorityQueue.prototype.Element = class {
    constructor(data, priority) {
       this.data = data;
       this.priority = priority;
    }
 };
+</script>
 
+<!-- path propagater and highlighter functions -->
+<script type="text/javascript">
+
+function pathhighlighter(id)
+{
+  if(id!=start)
+  {
+  document.getElementById(id).style.backgroundColor='yellow';
+  document.getElementById('b'+id.slice(3,)).style.border="0px solid yellow";
+  document.getElementById('b'+id.slice(3,)).style.margin="0px";
+  }
+}
+
+function propagater(id) {
+  if(id!=start)
+  {
+  document.getElementById(id).style.backgroundColor='#a6dcef';
+  document.getElementById('b'+id.slice(3,)).style.border="0px solid #a6dcef";
+  document.getElementById('b'+id.slice(3,)).style.margin="0px";
+  }
+}
+
+function propagater2(id) {
+//  console.log('------------------------------'+id+'---------------------------');
+  if(id!=start)
+  {
+  document.getElementById(id).style.backgroundColor='pink';
+  document.getElementById('b'+id.slice(3,)).style.border="0px solid pink";
+  document.getElementById('b'+id.slice(3,)).style.margin="0px";
+  }
+}
+</script>
+
+
+sleep function
+<script type="text/javascript">
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-var prev = {};
+</script>
 
 
+
+<script type="text/javascript">
 
 async function myFunction() {
+  animate=true;
 var x = document.querySelectorAll("div");
   for (i = 1; i < x.length; i++) {
      x[i].style.backgroundColor = "white";
@@ -312,7 +331,7 @@ if(!pass)
 if(distances[item][1]!=Infinity)
 {
  setTimeout(function () {
-   alertFunc('div'+distances[item][0].slice(1,));
+   propagater('div'+distances[item][0].slice(1,));
  }, 0.002);
 }
  await sleep(0.003);
@@ -346,7 +365,7 @@ for(i in path)
     setTimeout(function () {
 
       console.log(path[path.length-i]);
-      alertpathFunc('div'+path[path.length-i-1].slice(1,));
+      pathhighlighter('div'+path[path.length-i-1].slice(1,));
     }, 24);
 
     await sleep(25);
@@ -366,7 +385,7 @@ else {
  if(distances[item][1]!=Infinity)
  {
   setTimeout(function () {
-    alertFunc('div'+distances[item][0].slice(1,));
+    propagater('div'+distances[item][0].slice(1,));
   }, 0.002);
  }
   await sleep(0.003);
@@ -400,7 +419,7 @@ else {
     if(distances2[item][1]!=Infinity)
     {
     setTimeout(function () {
-      alertFunc2('div'+distances2[item][0].slice(1,));
+      propagater2('div'+distances2[item][0].slice(1,));
     }, 0.002);
     }
     await sleep(0.003);
@@ -438,7 +457,7 @@ else {
           setTimeout(function () {
 
             console.log(path[path.length-i]);
-            alertpathFunc('div'+path[path.length-i-1].slice(1,));
+            pathhighlighter('div'+path[path.length-i-1].slice(1,));
           }, 24);
 
           await sleep(25);
@@ -448,48 +467,11 @@ else {
     prev=[];
 
   }
-
-
-
+  
 }
-
-
-
-function alertpathFunc(id)
-{
-  if(id!=start)
-  {
-document.getElementById(id).style.backgroundColor='yellow';
-document.getElementById('b'+id.slice(3,)).style.border="0px solid yellow";
-document.getElementById('b'+id.slice(3,)).style.margin="0px";
-
-}
-}
-function alertFunc(id) {
-//  console.log('------------------------------'+id+'---------------------------');
-  if(id!=start)
-  {
-document.getElementById(id).style.backgroundColor='#a6dcef';
-document.getElementById('b'+id.slice(3,)).style.border="0px solid #a6dcef";
-document.getElementById('b'+id.slice(3,)).style.margin="0px";
-
-}
-}
-function alertFunc2(id) {
-//  console.log('------------------------------'+id+'---------------------------');
-  if(id!=start)
-  {
-document.getElementById(id).style.backgroundColor='pink';
-document.getElementById('b'+id.slice(3,)).style.border="0px solid pink";
-document.getElementById('b'+id.slice(3,)).style.margin="0px";
-
-}
-}
-
-
 </script>
 
-<!-- for drag and drop of start point -->
+<!-- for drag and drop of start point ,pass point and end point -->
 
 
 <script>
@@ -530,6 +512,9 @@ function drop(ev)
     }
   }
 </script>
+
+
+
 <!-- //////////////////////  this is war wall   //////////////////////////////// -->
 <script type="text/javascript">
 
@@ -542,12 +527,6 @@ function mousedown(e)
         lclicked=true;
         if(!wall.includes('b'+e.target.id.slice(3,)) && e.target.id.slice(0,3)=='div')
           {
-            // document.getElementById(e.target.id).style.backgroundColor='white';
-            // var ind=wall.indexOf('b'+e.target.id.slice(3,));
-            // if (ind > -1)
-            //   {
-            //     wall.splice(ind, 1);
-            //   }
             if('b'+e.target.id.slice(3,)!=start && 'b'+e.target.id.slice(3,)!=final)
             {
 
@@ -619,13 +598,18 @@ function entering(e)
 }
 
 
+</script>
 
-////////////////////////prevernting the right click default of the google chrome
+<!-- prevernting the right click default of the google chrome -->
+
+<script type="text/javascript">
 
 document.getElementById('graph').addEventListener('contextmenu', function(evt) {
   evt.preventDefault();
 }, false);
+
 </script>
+
 
 
 
