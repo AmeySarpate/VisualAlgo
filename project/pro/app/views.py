@@ -3,7 +3,9 @@ from django.shortcuts import render
 # Create your views here.
 
 def home(request):
-    return render(request,'home.html',{'rows':range(1,41),'cols':range(1,80)})
+    col=70;
+    row=35;
+    return render(request,'home.html',{'rows':range(1,row+1),'cols':range(1,col+1)})
 
 
 def side(request):

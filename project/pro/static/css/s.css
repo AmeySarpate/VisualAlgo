@@ -1,11 +1,7 @@
 
-button
-{
-  width:15px;
-  height: 15px;
-  background-color: white;
-  border:0.3px solid black;
+body{
   padding: 0;
+  margin:0;
 }
 #graph
 {
@@ -31,3 +27,34 @@ td {
    margin:0px;
    padding:0px;
  }
+ ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li button {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  color:white;
+  margin:0;
+  background-color:#333;
+  border: 0;
+}
+
+li button:hover {
+  background-color: #111;
+}
+#drag {
+  position: absolute;
+  pointer-events:none;
+}

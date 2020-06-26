@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="{% static 'css/s.css'%}">
   </head>
   <body >
-    <button onclick="myFunction()" style='width:500px;height:40px;background-color:green'>Try it</button>
+
+<ul>
+  <li><button id='nav1'onclick="myFunction()">Djkastra</button></li>
+  <li><button id='nav2'>A* algorithm</button></li>
+  <li><button id='nav3'>3rd algo</button></li>
+
+</ul>
+
     <img id='start' src="{% static 'images/start.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;' draggable="true" ondragstart="drag(event)">
     <img id='end' src="{% static 'images/end.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;' draggable="true" ondragstart="drag(event)">
     <img id='pass' src="{% static 'images/pass.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;' draggable="true" ondragstart="drag(event)">
@@ -22,7 +29,7 @@
       {% for col in cols %}
         <td  id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding:0px;margin:0px;">
 
-            <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px;width:18px;height:15px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
+            <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px;width:21.4px;height:19px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
         </td>
       {%endfor%}
@@ -46,6 +53,7 @@ var imagedragging=false;
 var path=[];
 var path2=[];
 var prev=[];
+var prev2=[];
 var animate=false;
 
 var x = document.querySelectorAll("div");
@@ -232,23 +240,20 @@ function sleep(ms) {
 
 </script>
 
-
-
+<!-- other very important breaked function  -->
 <script type="text/javascript">
-
-async function myFunction() {
+function graphbuild()
+{
   animate=true;
-var x = document.querySelectorAll("div");
+  var x = document.querySelectorAll("div");
   for (i = 1; i < x.length; i++) {
      x[i].style.backgroundColor = "white";
    }
-var k=document.querySelectorAll('td');
-for(i=1;i<k.length;i++)
+  var k=document.querySelectorAll('td');
+  for(i=1;i<k.length;i++)
   {
     k[i].style.border="1px solid black";
   }
-///////////////////////////////////////////ecprer||||||||||||||||||||||||||||||||||||||||
-
 let g=new Graph();
 for(let i=1;i<=40;i++)
   {
@@ -278,17 +283,10 @@ for(let i=1;i<=40;i++)
         }
       }
 
-///////////////////////////|||||||||||||||||||
-
-
-
-
 
 for (item in wall)
   {
     document.getElementById('div'+wall[item].slice(1,)).style.backgroundColor='black';
-
-
     nearest=g.edges[wall[item]];
     for (i in nearest)
     {
@@ -311,126 +309,37 @@ for (item in wall)
 
 
   }
-//  console.log(g.djikstraAlgorithm(start));
-
-
-var x = document.querySelectorAll("button");
-
- for (i = 1; i < x.length; i++) {
-   x[i].style.backgroundColor = "white";
- }
-
-document.getElementById(start).style.backgroundColor='blue';
-document.getElementById(final).style.backgroundColor='red';
-distances=g.djikstraAlgorithm(start);
-
-if(!pass)
-{
- for (item in distances)
- {
-if(distances[item][1]!=Infinity)
-{
- setTimeout(function () {
-   propagater('div'+distances[item][0].slice(1,));
- }, 0.002);
+return g;
 }
- await sleep(0.003);
- if(distances[item][0]==final)
- {
-  document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='red';
-   break;
- }
- }
-
-  document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
-  curr=final;
-  if(prev[final]==null)
-    {
-      alert('TARGET CANNOT BE REACHED');
-    }
-    else {
-      while(prev[curr]!=null)
-        {
-      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-         path.push(prev[curr]);
-         curr=prev[curr];
-        }
-        path.pop();
-    //    console.log('this is the path : ');
-    //    console.log(path);
-    }
- document.getElementById('div'+curr.slice(1,)).style.backgroundColor='blue';
-for(i in path)
-  {console.log(i);
-    setTimeout(function () {
-
-      console.log(path[path.length-i]);
-      pathhighlighter('div'+path[path.length-i-1].slice(1,));
-    }, 24);
-
-    await sleep(25);
-    }
 
 
 
 
-path=[];
-}
-else {
+async function animating(g)
+{
 
-
-
-  for (item in distances)
+  path=[];
+  if(!pass)
   {
- if(distances[item][1]!=Infinity)
- {
-  setTimeout(function () {
-    propagater('div'+distances[item][0].slice(1,));
-  }, 0.002);
- }
-  await sleep(0.003);
-  if(distances[item][0]==pass)
-  {
-   document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='pink';
-    break;
-  }
-  }
-  curr=pass;
-  if(prev[final]==null)
-    {
-      alert('TARGET CANNOT BE REACHED');
-    }
-    else {
-      while(prev[curr]!=null)
-        {
-      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-         path.push(prev[curr]);
-         curr=prev[curr];
-        }
-        path.pop();
-    //    console.log('this is the path : ');
-    //    console.log(path);
-    }
-  prev=[];
-  distances2=g.djikstraAlgorithm(pass);
 
-    for (item in distances2)
-    {
-    if(distances2[item][1]!=Infinity)
-    {
-    setTimeout(function () {
-      propagater2('div'+distances2[item][0].slice(1,));
-    }, 0.002);
-    }
-    await sleep(0.003);
-    if(distances2[item][0]==final)
-    {
-     document.getElementById('div'+distances2[item][0].slice(1,)).style.backgroundColor='pink';
-      break;
-    }
-    }
+   for (item in distances)
+   {
+  if(distances[item][1]!=Infinity)
+  {
+   setTimeout(function () {
+     propagater('div'+distances[item][0].slice(1,));
+   }, 0.002);
+  }
+   await sleep(0.003);
+   if(distances[item][0]==final)
+   {
+    document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='red';
+     break;
+   }
+   }
+
+    document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
     curr=final;
-    var path2=[];
     if(prev[final]==null)
       {
         alert('TARGET CANNOT BE REACHED');
@@ -439,35 +348,132 @@ else {
         while(prev[curr]!=null)
           {
         //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-           path2.push(prev[curr]);
+           path.push(prev[curr]);
            curr=prev[curr];
           }
-          path2.pop();
+          path.pop();
       //    console.log('this is the path : ');
       //    console.log(path);
       }
-      /////////////////////
-      for(i=0;i<path.length;i++)
-        {
-          path2.push(path[i]);
-        }
-      path=path2;
-      for(i in path)
-        {console.log(i);
-          setTimeout(function () {
+   document.getElementById('div'+curr.slice(1,)).style.backgroundColor='blue';
+  for(i in path)
+    {//console.log(i);
+      setTimeout(function () {
 
-            console.log(path[path.length-i]);
-            pathhighlighter('div'+path[path.length-i-1].slice(1,));
-          }, 24);
+      //  console.log(path[path.length-i]);
+        pathhighlighter('div'+path[path.length-i-1].slice(1,));
+      }, 24);
 
-          await sleep(25);
-          }
+      await sleep(25);
+      }
 
-    path=[];
-    prev=[];
+
+
 
   }
-  
+  else {
+
+
+
+      for (item in distances)
+      {
+       if(distances[item][1]!=Infinity)
+       {
+        setTimeout(function () {
+        propagater('div'+distances[item][0].slice(1,));
+        }, 0.002);
+       }
+      await sleep(0.003);
+      if(distances[item][0]==pass)
+      {
+       document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='pink';
+        break;
+      }
+      }
+      curr=pass;
+      if(prev[final]==null)
+        {
+          alert('TARGET CANNOT BE REACHED');
+        }
+        else {
+        while(prev[curr]!=null)
+          {
+        //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+           path.push(prev[curr]);
+           curr=prev[curr];
+          }
+          path.pop();
+      //    console.log('this is the path : ');
+      //    console.log(path);
+      }
+    prev=[];
+    distances2=g.djikstraAlgorithm(pass);
+
+      for (item in distances2)
+      {
+      if(distances2[item][1]!=Infinity)
+      {
+      setTimeout(function () {
+        propagater2('div'+distances2[item][0].slice(1,));
+      }, 0.002);
+      }
+      await sleep(0.003);
+      if(distances2[item][0]==final)
+      {
+       document.getElementById('div'+distances2[item][0].slice(1,)).style.backgroundColor='pink';
+        break;
+      }
+      }
+      curr=final;
+      var path2=[];
+      if(prev[final]==null)
+        {
+          alert('TARGET CANNOT BE REACHED');
+        }
+        else {
+          while(prev[curr]!=null)
+            {
+          //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+             path2.push(prev[curr]);
+             curr=prev[curr];
+            }
+            path2.pop();
+        //    console.log('this is the path : ');
+        //    console.log(path);
+        }
+        /////////////////////
+        for(i=0;i<path.length;i++)
+          {
+            path2.push(path[i]);
+          }
+        path=path2;
+        for(i in path)
+          {//console.log(i);
+            setTimeout(function () {
+
+            //  console.log(path[path.length-i]);
+              pathhighlighter('div'+path[path.length-i-1].slice(1,));
+            }, 24);
+
+            await sleep(25);
+            }
+
+      path=[];
+      prev=[];
+
+    }
+}
+</script>
+
+
+<script type="text/javascript">
+
+async function myFunction() {
+g=graphbuild();
+
+distances=g.djikstraAlgorithm(start);
+animating(g);
+
 }
 </script>
 
@@ -475,6 +481,7 @@ else {
 
 
 <script>
+var dragImg;
 function allowDrop(ev)
   {
     ev.preventDefault();
@@ -483,7 +490,19 @@ function allowDrop(ev)
 function drag(ev)
   {  imagedragging=true;
     ev.dataTransfer.setData("text", ev.target.id);
-    console.log('Drag is happening');
+  //  console.log('Drag is happening');
+  // dragImg=ev.target;
+  // dragImg.setAttribute("id", "drag");
+  // dragging = true;
+  //
+  // document.addEventListener('mousedown', function documentMouseDown(){
+  //   if (dragging) {
+  //     dragImg.removeAttribute("id");
+  //     dragging = false;
+  //
+  //     document.removeEventListener('mousedown', documentMouseDown);
+  //   }
+  // });
 
   }
 
@@ -493,7 +512,7 @@ function drop(ev)
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     ev.target.appendChild(document.getElementById(data));
-    console.log('Drop method called');
+  //  console.log('Drop method called');
     var div_id=ev.target.id;
     var b_id='b'+div_id.slice(3,);
     lclicked=false;
@@ -571,7 +590,7 @@ function entering(e)
       {
         if(!wall.includes(b_id))
           {
-          if(b_id!=start && b_id !=final)
+          if(b_id!=start && b_id !=final && b_id!=pass)
           {
             console.log('entering s='+start+' f='+final+'  curr='+b_id);
            wall.push(b_id);
