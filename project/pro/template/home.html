@@ -9,15 +9,17 @@
   <body >
 
 <ul>
-  <li><button id='nav1'onclick="myFunction()">Djkastra</button></li>
+  <li><button id='nav1'onclick="myFunction(event)">Djkastra</button></li>
   <li><button id='nav2'>A* algorithm</button></li>
   <li><button id='nav3'>3rd algo</button></li>
+  <center style='float:right'>
+  <li><button id='nav4' onclick='myFunction2(event)'>Visualize</button></li></center>
 
 </ul>
 
-    <img id='start' src="{% static 'images/start.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;' draggable="true" ondragstart="drag(event)">
-    <img id='end' src="{% static 'images/end.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;' draggable="true" ondragstart="drag(event)">
-    <img id='pass' src="{% static 'images/pass.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;' draggable="true" ondragstart="drag(event)">
+    <img id='start' src="{% static 'images/start.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:30px;' onclick='stick(event)'>
+    <img id='end' src="{% static 'images/end.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:60px;'  onclick='stick(event)'>
+    <img id='pass' src="{% static 'images/pass.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:90px;'onclick='stick(event)'>
     <br>
     <div id='graph'unselectable="on"
  onselectstart="return false;" >
@@ -29,7 +31,7 @@
       {% for col in cols %}
         <td  id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding:0px;margin:0px;">
 
-            <div id="div_{{row}}_{{col}}"  ondrop="drop(event)" ondragover="allowDrop(event)" style='margin:0px;width:21.4px;height:19px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
+            <div id="div_{{row}}_{{col}}"   style='margin:0px;width:21.4px;height:19px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
         </td>
       {%endfor%}
@@ -54,7 +56,9 @@ var path=[];
 var path2=[];
 var prev=[];
 var prev2=[];
+var distances=[];
 var animate=false;
+var g;
 
 var x = document.querySelectorAll("div");
   for (i = 1; i < x.length; i++) {
@@ -211,7 +215,7 @@ function pathhighlighter(id)
 }
 
 function propagater(id) {
-  if(id!=start)
+  if(id!=start && id!=pass && id!=final)
   {
   document.getElementById(id).style.backgroundColor='#a6dcef';
   document.getElementById('b'+id.slice(3,)).style.border="0px solid #a6dcef";
@@ -221,7 +225,7 @@ function propagater(id) {
 
 function propagater2(id) {
 //  console.log('------------------------------'+id+'---------------------------');
-  if(id!=start)
+  if(id!=start && id!=final && id!=pass)
   {
   document.getElementById(id).style.backgroundColor='pink';
   document.getElementById('b'+id.slice(3,)).style.border="0px solid pink";
@@ -319,13 +323,25 @@ async function animating(g)
 {
 
   path=[];
+//  console.log(distances);
   if(!pass)
   {
+    document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
+    document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
+
 
    for (item in distances)
    {
+     if(item.node=='start')
+       document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
+     else if(item.node=='final')
+       document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
+
   if(distances[item][1]!=Infinity)
   {
+    console.log('see----->');
+    console.log(distances[item][0]);
+    if(distances[item][0]!=final && distances[item][0]!=start)
    setTimeout(function () {
      propagater('div'+distances[item][0].slice(1,));
    }, 0.002);
@@ -333,7 +349,7 @@ async function animating(g)
    await sleep(0.003);
    if(distances[item][0]==final)
    {
-    document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='red';
+    document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='green';
      break;
    }
    }
@@ -368,17 +384,20 @@ async function animating(g)
       }
 
 
-
-
   }
   else {
 
 
+      document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
+      document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
+
+    document.getElementById('div'+pass.slice(1,)).style.backgroundColor='orange';
 
       for (item in distances)
       {
        if(distances[item][1]!=Infinity)
        {
+         if(distances[item][0]!=final && distances[item][0]!=start && distances[item][0]!=pass)
         setTimeout(function () {
         propagater('div'+distances[item][0].slice(1,));
         }, 0.002);
@@ -414,6 +433,7 @@ async function animating(g)
       if(distances2[item][1]!=Infinity)
       {
       setTimeout(function () {
+        if(distances2[item][0]!=start && distances2[item][0]!=final && distances2[item][0]!=pass)
         propagater2('div'+distances2[item][0].slice(1,));
       }, 0.002);
       }
@@ -460,6 +480,11 @@ async function animating(g)
 
       path=[];
       prev=[];
+      document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
+      document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
+
+    document.getElementById('div'+pass.slice(1,)).style.backgroundColor='orange';
+
 
     }
 }
@@ -468,12 +493,20 @@ async function animating(g)
 
 <script type="text/javascript">
 
-async function myFunction() {
-g=graphbuild();
+async function myFunction(event) {
 
-distances=g.djikstraAlgorithm(start);
-animating(g);
+document.getElementById(event.target.id).style.backgroundColor='green';
 
+
+
+}
+function myFunction2(event)
+{
+  g=graphbuild()
+  document.getElementById(event.target.id).style.backgroundColor='green';
+  distances=g.djikstraAlgorithm(start);
+
+  animating(g);
 }
 </script>
 
@@ -482,54 +515,73 @@ animating(g);
 
 <script>
 var dragImg;
-function allowDrop(ev)
-  {
-    ev.preventDefault();
-  }
+function stick(event){
 
-function drag(ev)
-  {  imagedragging=true;
-    ev.dataTransfer.setData("text", ev.target.id);
-  //  console.log('Drag is happening');
-  // dragImg=ev.target;
-  // dragImg.setAttribute("id", "drag");
-  // dragging = true;
-  //
+
+dragImg = event.target;
+var imagedragging = false;
+
+dragImg.addEventListener("mousedown", function (event) {
+  event.stopPropagation();
+  dragImg = event.target;
+  console.log("mousedown detected " + dragImg.clientHeight);
+  dragImg.setAttribute("class", "drag");
+  imagedragging = true;
+
   // document.addEventListener('mousedown', function documentMouseDown(){
-  //   if (dragging) {
-  //     dragImg.removeAttribute("id");
-  //     dragging = false;
+  //   if (imagedragging) {
+  //     dragImg.removeAttribute("class");
+  //     imagedragging = false;
   //
   //     document.removeEventListener('mousedown', documentMouseDown);
   //   }
   // });
+});
 
+document.addEventListener("mousemove", function (event) {
+  if (imagedragging) {
+    dragImg.style.top = (event.clientY - dragImg.clientHeight/2) + "px";
+    dragImg.style.left = (event.clientX - dragImg.clientWidth/2) + "px";
   }
+});
 
-function drop(ev)
+document.body.addEventListener("mouseup", function (event) {
+  if(imagedragging)
   {
-  imagedragging=false;
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
-    ev.target.appendChild(document.getElementById(data));
-  //  console.log('Drop method called');
-    var div_id=ev.target.id;
-    var b_id='b'+div_id.slice(3,);
-    lclicked=false;
-    if(data=='start')
+  console.log("mouseup detected");
+  imagedragging = false;
+  //reset position if not in clipboard
+  dragImg.removeAttribute("class");
+  console.log(dragImg.id+' here mouse is lifted at'+event.target.id);
+  if(event.target.id.slice(0,3)=='div')
+  document.getElementById(event.target.id).style.backgroundColor='orange';
+  if(dragImg.id=='start')
     {
+    start='b'+event.target.id.slice(3,);
+    document.getElementById(event.target.id).style.backgroundColor='blue';
+    }
+  else if(dragImg.id=='end')
+    {
+      final='b'+event.target.id.slice(3,);
+      document.getElementById(event.target.id).style.backgroundColor='green';
+    }
+  else if(dragImg.id=='pass')
+    {
+      pass='b'+event.target.id.slice(3,);
+      document.getElementById(event.target.id).style.backgroundColor='orange';
+    }
+  dragImg.style.top = (event.clientY - dragImg.clientHeight/2) + "px";
+  dragImg.style.left = (event.clientX - dragImg.clientWidth/2) + "px";
 
-      start=b_id;
-    }
-    else if(data=='end')
-    {
-      final=b_id;
-    }
-    else if(data=='pass')
-    {
-      pass=b_id;
-    }
-  }
+dragImg=null;
+}
+});
+
+
+
+}
+
+
 </script>
 
 
@@ -549,7 +601,7 @@ function mousedown(e)
             if('b'+e.target.id.slice(3,)!=start && 'b'+e.target.id.slice(3,)!=final)
             {
 
-                console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
+            //    console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
             document.getElementById(e.target.id).style.backgroundColor='black';
             wall.push('b'+e.target.id.slice(3,));
           }
@@ -613,6 +665,10 @@ function entering(e)
             document.getElementById(e.target.id).style.backgroundColor='white';
             console.log(wall);
           }
+      }
+    else if(imagedragging && animate)
+      {
+        console.log('mosue has eneterd while dragging in '+e.target.id);
       }
 }
 

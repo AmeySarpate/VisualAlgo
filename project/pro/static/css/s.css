@@ -54,7 +54,11 @@ li button {
 li button:hover {
   background-color: #111;
 }
-#drag {
+.drag {
   position: absolute;
   pointer-events:none;
 }
+  img
+  {
+    position:absolute;
+  }
