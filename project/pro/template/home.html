@@ -1,99 +1,106 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-    <link rel="stylesheet" href="{% static 'css/s.css'%}">
-  </head>
-  <body >
 
-<ul>
-  <li><button id='nav1'onclick="myFunction(event)">Djkastra</button></li>
-  <li><button id='nav2'>A* algorithm</button></li>
-  <li><button id='nav3'>3rd algo</button></li>
-  <center style='float:right'>
-  <li><button id='nav4' onclick='myFunction2(event)'>Visualize</button></li></center>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="{% static 'css/s.css'%}">
+</head>
 
-</ul>
+<body>
 
-    <img id='start' src="{% static 'images/start.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:30px;' onclick='stick(event)'>
-    <img id='end' src="{% static 'images/end.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:60px;'  onclick='stick(event)'>
-    <img id='pass' src="{% static 'images/pass.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:90px;'onclick='stick(event)'>
-    <br>
-    <div id='graph'unselectable="on"
- onselectstart="return false;" >
-     <table style="width:100%">
+  <ul>
+    <li><button id='nav1' onclick="myFunction(event)">Djkastra</button></li>
+    <li><button id='nav2'>A* algorithm</button></li>
+    <li><button id='nav3'>3rd algo</button></li>
+    <center style='float:right'>
+      <li><button id='nav4' onclick='myFunction2(event)'>Visualize</button></li>
+    </center>
+
+  </ul>
+
+  <img id='start' src="{% static 'images/start.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:30px;' onclick='stick(event)'>
+  <img id='end' src="{% static 'images/end.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:60px;' onclick='stick(event)'>
+  <img id='pass' src="{% static 'images/pass.png'%}" alt="Photo" width='14px' height='14px' style='margin:0;left:90px;' onclick='stick(event)'>
+  <br>
+  <div id='graph' unselectable="on" onselectstart="return false;">
+    <table style="width:100%">
       {% for row in rows%}
       <tr>
 
 
-      {% for col in cols %}
-        <td  id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding:0px;margin:0px;">
+        {% for col in cols %}
+        <td id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding:0px;margin:0px;">
 
-            <div id="div_{{row}}_{{col}}"   style='margin:0px;width:21.4px;height:19px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
+          <div id="div_{{row}}_{{col}}" style='margin:0px;width:21.4px;height:19px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
         </td>
-      {%endfor%}
+        {%endfor%}
       </tr>
       {% endfor%}
     </table>
-    </div>
+  </div>
 
 
-  </body>
+</body>
 
 <!--varible declaration and initials-->
 <script type="text/javascript">
-var start;
-var final;
-var pass;
-var lclicked;
-var rclicked;
-var wall=[];
-var imagedragging=false;
-var path=[];
-var path2=[];
-var prev=[];
-var prev2=[];
-var distances=[];
-var animate=false;
-var g;
+  var start;
+  var final;
+  var pass;
+  var lclicked;
+  var rclicked;
+  var wall = [];
+  var imagedragging = false;
+  var path = [];
+  var path2 = [];
+  var prev = [];
+  var prev2 = [];
+  var distances = [];
+  var check_prev_wall = [];
+  var check_prev_pass_exist=false;
+  var animate = false;
+  var g;
 
-var x = document.querySelectorAll("div");
+  var x = document.querySelectorAll("div");
   for (i = 1; i < x.length; i++) {
-     x[i].style.backgroundColor = "white";
-   }
-
+    x[i].style.backgroundColor = "white";
+  }
 </script>
 
 <!-- class declaration -->
 <script type="text/javascript">
-class Graph {
-   constructor() {
+  class Graph {
+    constructor() {
       this.edges = {};
       this.nodes = [];
-   }
-   addNode(node) {
+    }
+    addNode(node) {
       this.nodes.push(node);
       this.edges[node] = [];
-   }
-   addEdge(node1, node2) {
+    }
+    addEdge(node1, node2) {
       this.edges[node1].push(node2);
       this.edges[node2].push(node1);
-   }
-
-   addDirectedEdge(node1, node2, weight = 1) {
-       this.edges[node1].push({ node: node2, weight: weight });
     }
 
-   display() {
-      let graph = ""; this.nodes.forEach(node => {
-         graph += node + "->" + this.edges[node].join(", ") + "\n";
+    addDirectedEdge(node1, node2, weight = 1) {
+      this.edges[node1].push({
+        node: node2,
+        weight: weight
       });
-  //    console.log(graph);
-   }
-   djikstraAlgorithm(startNode) {
+    }
+
+    display() {
+      let graph = "";
+      this.nodes.forEach(node => {
+        graph += node + "->" + this.edges[node].join(", ") + "\n";
+      });
+      //    console.log(graph);
+    }
+    djikstraAlgorithm(startNode) {
       let distances = {};
 
       // Stores the reference to previous nodes
@@ -104,183 +111,197 @@ class Graph {
       distances[startNode] = 0;
       pq.enqueue(startNode, 0);
       this.nodes.forEach(node => {
-         if (node !== startNode) distances[node] = Infinity;
-         prev[node] = null;
+        if (node !== startNode) distances[node] = Infinity;
+        prev[node] = null;
       });
 
       while (!pq.isEmpty()) {
-         let minNode = pq.dequeue();
-         let currNode = minNode.data;
-         let weight = minNode.priority;
-         this.edges[currNode].forEach(neighbor => {
-            let alt = distances[currNode] + neighbor.weight;
-            if (alt < distances[neighbor.node]) {
-               distances[neighbor.node] = alt;
-               prev[neighbor.node] = currNode;
-               pq.enqueue(neighbor.node, distances[neighbor.node]);
+        let minNode = pq.dequeue();
+        let currNode = minNode.data;
+        let weight = minNode.priority;
+        this.edges[currNode].forEach(neighbor => {
+          let alt = distances[currNode] + neighbor.weight;
+          if (alt < distances[neighbor.node]) {
+            distances[neighbor.node] = alt;
+            prev[neighbor.node] = currNode;
+            pq.enqueue(neighbor.node, distances[neighbor.node]);
 
-            }
-         });
+          }
+        });
       }
 
       var sortable = [];
-      for (var n in distances) {sortable.push([n, distances[n]]);}
-      sortable.sort(function(a, b) {return a[1] - b[1];});
+      for (var n in distances) {
+        sortable.push([n, distances[n]]);
+      }
+      sortable.sort(function(a, b) {
+        return a[1] - b[1];
+      });
       return sortable;
-   }
-}
+    }
+  }
 
 
-class PriorityQueue {
-   constructor(maxSize) {
+  class PriorityQueue {
+    constructor(maxSize) {
       // Set default max size if not provided
       if (isNaN(maxSize)) {
-         maxSize = 10;
-       }
+        maxSize = 10;
+      }
       this.maxSize = maxSize;
       // Init an array that'll contain the queue values.
       this.container = [];
-   }
-   // Helper function to display all values while developing
-   display() {
-  //    console.log(this.container);
-   }
-   // Checks if queue is empty
-   isEmpty() {
+    }
+    // Helper function to display all values while developing
+    display() {
+      //    console.log(this.container);
+    }
+    // Checks if queue is empty
+    isEmpty() {
       return this.container.length === 0;
-   }
-   // checks if queue is full
-   isFull() {
+    }
+    // checks if queue is full
+    isFull() {
       return this.container.length >= this.maxSize;
-   }
-   enqueue(data, priority) {
+    }
+    enqueue(data, priority) {
       // Check if Queue is full
       if (this.isFull()) {
-         console.log("Queue Overflow!");
-         return;
+        console.log("Queue Overflow!");
+        return;
       }
       let currElem = new this.Element(data, priority);
       let addedFlag = false;
       // Since we want to add elements to end, we'll just push them.
       for (let i = 0; i < this.container.length; i++) {
-         if (currElem.priority < this.container[i].priority) {
-            this.container.splice(i, 0, currElem);
-            addedFlag = true; break;
-         }
+        if (currElem.priority < this.container[i].priority) {
+          this.container.splice(i, 0, currElem);
+          addedFlag = true;
+          break;
+        }
       }
       if (!addedFlag) {
-         this.container.push(currElem);
+        this.container.push(currElem);
       }
-   }
-   dequeue() {
-   // Check if empty
-   if (this.isEmpty()) {
-      console.log("Queue Underflow!");
-      return;
-   }
-   return this.container.pop();
+    }
+    dequeue() {
+      // Check if empty
+      if (this.isEmpty()) {
+        console.log("Queue Underflow!");
+        return;
+      }
+      return this.container.pop();
+    }
+    peek() {
+      if (isEmpty()) {
+        console.log("Queue Underflow!");
+        return;
+      }
+      return this.container[this.container.length - 1];
+    }
+    clear() {
+      this.container = [];
+    }
   }
-  peek() {
-   if (isEmpty()) {
-      console.log("Queue Underflow!");
-      return;
-   }
-   return this.container[this.container.length - 1];
-  }
-  clear() {
-   this.container = [];
-   }
-}
 
 
-PriorityQueue.prototype.Element = class {
-   constructor(data, priority) {
+  PriorityQueue.prototype.Element = class {
+    constructor(data, priority) {
       this.data = data;
       this.priority = priority;
-   }
-};
+    }
+  };
 </script>
 
 <!-- path propagater and highlighter functions -->
 <script type="text/javascript">
+  function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
 
-function pathhighlighter(id)
-{
-  if(id!=start)
-  {
-  document.getElementById(id).style.backgroundColor='yellow';
-  document.getElementById('b'+id.slice(3,)).style.border="0px solid yellow";
-  document.getElementById('b'+id.slice(3,)).style.margin="0px";
-  }
-}
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    // Please note that calling sort on an array will modify that array.
+    // you might want to clone your array first.
 
-function propagater(id) {
-  if(id!=start && id!=pass && id!=final)
-  {
-  document.getElementById(id).style.backgroundColor='#a6dcef';
-  document.getElementById('b'+id.slice(3,)).style.border="0px solid #a6dcef";
-  document.getElementById('b'+id.slice(3,)).style.margin="0px";
+    for (var i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
   }
-}
 
-function propagater2(id) {
-//  console.log('------------------------------'+id+'---------------------------');
-  if(id!=start && id!=final && id!=pass)
-  {
-  document.getElementById(id).style.backgroundColor='pink';
-  document.getElementById('b'+id.slice(3,)).style.border="0px solid pink";
-  document.getElementById('b'+id.slice(3,)).style.margin="0px";
+
+
+  function pathhighlighter(id) {
+    if (id != start) {
+      document.getElementById(id).style.backgroundColor = 'yellow';
+      document.getElementById('b' + id.slice(3, )).style.border = "0px solid yellow";
+      document.getElementById('b' + id.slice(3, )).style.margin = "0px";
+    }
   }
-}
+
+  function propagater(id) {
+    if (id != start && id != pass && id != final) {
+      //  console.log(id +'is going to propagate');
+      document.getElementById(id).style.backgroundColor = '#a6dcef';
+      document.getElementById('b' + id.slice(3, )).style.border = "0px solid #a6dcef";
+      document.getElementById('b' + id.slice(3, )).style.margin = "0px";
+    }
+  }
+
+  function propagater2(id) {
+    //  console.log('------------------------------'+id+'---------------------------');
+    if (id != start && id != final && id != pass) {
+      document.getElementById(id).style.backgroundColor = 'pink';
+      document.getElementById('b' + id.slice(3, )).style.border = "0px solid pink";
+      document.getElementById('b' + id.slice(3, )).style.margin = "0px";
+    }
+  }
 </script>
 
 
 sleep function
 <script type="text/javascript">
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 </script>
 
 <!-- other very important breaked function  -->
 <script type="text/javascript">
-function graphbuild()
-{
-  animate=true;
-  var x = document.querySelectorAll("div");
-  for (i = 1; i < x.length; i++) {
-     x[i].style.backgroundColor = "white";
-   }
-  var k=document.querySelectorAll('td');
-  for(i=1;i<k.length;i++)
+  function graphbuild() {
+
+    var x = document.querySelectorAll("div");
+    for (i = 1; i < x.length; i++) {
+      x[i].style.backgroundColor = "white";
+    }
+    var k = document.querySelectorAll('td');
+    for (i = 1; i < k.length; i++) {
+      k[i].style.border = "1px solid black";
+    }
+    let g = new Graph();
+    for(let i=1;i<={{nrows}};i++)
   {
-    k[i].style.border="1px solid black";
-  }
-let g=new Graph();
-for(let i=1;i<=40;i++)
-  {
-  for(let j=1;j<=79;j++)
+  for(let j=1;j<={{ncols}};j++)
     {
     g.addNode('b_'+i+'_'+j);
     }
   }
 
 
-
-  for(let i=1;i<=40;i++)
+  for(let i=1;i<={{nrows}};i++)
     {
-    for(let j=1;j<=78;j++)
+    for(let j=1;j<={{ncols}}-1;j++)
       {
       g.addDirectedEdge('b_'+i+'_'+j,'b_'+i+'_'+(j+1),1);
       g.addDirectedEdge('b_'+i+'_'+(j+1),'b_'+i+'_'+j,1);
 
       }
     }
-    for(let i=1;i<=79;i++)
+    for(let i=1;i<={{ncols}};i++)
       {
-      for(let j=1;j<=39;j++)
+      for(let j=1;j<={{nrows}}-1;j++)
         {
         g.addDirectedEdge('b_'+j+'_'+i,'b_'+(j+1)+'_'+(i),1);
         g.addDirectedEdge('b_'+(j+1)+'_'+(i),'b_'+j+'_'+i,1);
@@ -288,401 +309,1225 @@ for(let i=1;i<=40;i++)
       }
 
 
-for (item in wall)
-  {
-    document.getElementById('div'+wall[item].slice(1,)).style.backgroundColor='black';
-    nearest=g.edges[wall[item]];
-    for (i in nearest)
-    {
-      nearest[i].weight=Infinity;
+    for (item in wall) {
+      document.getElementById('div' + wall[item].slice(1, )).style.backgroundColor = 'black';
+      nearest = g.edges[wall[item]];
+      for (i in nearest) {
+        nearest[i].weight = Infinity;
+
+
+      }
+
+    }
+    for (k in g.edges) {
+      for (t in g.edges[k]) {
+        if (wall.includes(g.edges[k][t].node)) {
+          g.edges[k][t].weight = Infinity;
+
+        }
+      }
 
 
     }
-
+    return g;
   }
-  for(k in g.edges)
-  {
-    for(t in g.edges[k])
-      {
-        if(wall.includes(g.edges[k][t].node))
-        {
-          g.edges[k][t].weight=Infinity;
 
+
+
+
+  async function animating(g) {
+    animate = true;
+    path = [];
+    //  console.log(distances);
+    if (!pass) {
+      document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+      document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+
+      for (item in distances) {
+        if (item.node == start)
+          document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+        else if (item.node == final)
+          document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+        if (distances[item][1] != Infinity) {
+          //  console.log('see----->');
+          //    console.log(distances[item][0]);
+          if (distances[item][0] != final && distances[item][0] != start)
+            setTimeout(function() {
+              propagater('div' + distances[item][0].slice(1, ));
+            }, 0.002);
+        }
+        await sleep(0.003);
+        if (distances[item][0] == final) {
+          document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'green';
+          break;
         }
       }
 
-
-  }
-return g;
-}
-
-
-
-
-async function animating(g)
-{
-
-  path=[];
-//  console.log(distances);
-  if(!pass)
-  {
-    document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
-    document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
-
-
-   for (item in distances)
-   {
-     if(item.node=='start')
-       document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
-     else if(item.node=='final')
-       document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
-
-  if(distances[item][1]!=Infinity)
-  {
-    console.log('see----->');
-    console.log(distances[item][0]);
-    if(distances[item][0]!=final && distances[item][0]!=start)
-   setTimeout(function () {
-     propagater('div'+distances[item][0].slice(1,));
-   }, 0.002);
-  }
-   await sleep(0.003);
-   if(distances[item][0]==final)
-   {
-    document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='green';
-     break;
-   }
-   }
-
-    document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
-    curr=final;
-    if(prev[final]==null)
-      {
-        alert('TARGET CANNOT BE REACHED');
-      }
-      else {
-        while(prev[curr]!=null)
-          {
-        //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-           path.push(prev[curr]);
-           curr=prev[curr];
-          }
-          path.pop();
-      //    console.log('this is the path : ');
-      //    console.log(path);
-      }
-   document.getElementById('div'+curr.slice(1,)).style.backgroundColor='blue';
-  for(i in path)
-    {//console.log(i);
-      setTimeout(function () {
-
-      //  console.log(path[path.length-i]);
-        pathhighlighter('div'+path[path.length-i-1].slice(1,));
-      }, 24);
-
-      await sleep(25);
-      }
-
-
-  }
-  else {
-
-
-      document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
-      document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
-
-    document.getElementById('div'+pass.slice(1,)).style.backgroundColor='orange';
-
-      for (item in distances)
-      {
-       if(distances[item][1]!=Infinity)
-       {
-         if(distances[item][0]!=final && distances[item][0]!=start && distances[item][0]!=pass)
-        setTimeout(function () {
-        propagater('div'+distances[item][0].slice(1,));
-        }, 0.002);
-       }
-      await sleep(0.003);
-      if(distances[item][0]==pass)
-      {
-       document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='pink';
-        break;
-      }
-      }
-      curr=pass;
-      if(prev[final]==null)
-        {
-          alert('TARGET CANNOT BE REACHED');
-        }
-        else {
-        while(prev[curr]!=null)
-          {
-        //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-           path.push(prev[curr]);
-           curr=prev[curr];
-          }
-          path.pop();
-      //    console.log('this is the path : ');
-      //    console.log(path);
-      }
-    prev=[];
-    distances2=g.djikstraAlgorithm(pass);
-
-      for (item in distances2)
-      {
-      if(distances2[item][1]!=Infinity)
-      {
-      setTimeout(function () {
-        if(distances2[item][0]!=start && distances2[item][0]!=final && distances2[item][0]!=pass)
-        propagater2('div'+distances2[item][0].slice(1,));
-      }, 0.002);
-      }
-      await sleep(0.003);
-      if(distances2[item][0]==final)
-      {
-       document.getElementById('div'+distances2[item][0].slice(1,)).style.backgroundColor='pink';
-        break;
-      }
-      }
-      curr=final;
-      var path2=[];
-      if(prev[final]==null)
-        {
-          alert('TARGET CANNOT BE REACHED');
-        }
-        else {
-          while(prev[curr]!=null)
-            {
+      document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+      curr = final;
+      if (prev[final] == null) {
+        console.log('TARGET CANNOT BE REACHED');
+      } else {
+        while (prev[curr] != null) {
           //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-             path2.push(prev[curr]);
-             curr=prev[curr];
-            }
-            path2.pop();
+          path.push(prev[curr]);
+          curr = prev[curr];
+        }
+        path.pop();
         //    console.log('this is the path : ');
         //    console.log(path);
+      }
+      document.getElementById('div' + curr.slice(1, )).style.backgroundColor = 'blue';
+      for (i in path) { //console.log(i);
+        setTimeout(function() {
+
+          //  console.log(path[path.length-i]);
+          pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+        }, 24);
+
+        await sleep(25);
+      }
+
+
+    } else {
+
+      check_prev_pass_exist=true;
+      document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+      document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+      document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+      for (item in distances) {
+        if (distances[item][1] != Infinity) {
+          if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+            setTimeout(function() {
+              propagater('div' + distances[item][0].slice(1, ));
+            }, 0.002);
         }
-        /////////////////////
-        for(i=0;i<path.length;i++)
-          {
-            path2.push(path[i]);
-          }
-        path=path2;
-        for(i in path)
-          {//console.log(i);
-            setTimeout(function () {
+        await sleep(0.003);
+        if (distances[item][0] == pass) {
+          document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
+          break;
+        }
+      }
+      curr = pass;
+      if (prev[final] == null) {
+        console.log('TARGET CANNOT BE REACHED');
+      } else {
+        while (prev[curr] != null) {
+          //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+          path.push(prev[curr]);
+          curr = prev[curr];
+        }
+        path.pop();
+        //    console.log('this is the path : ');
+        //    console.log(path);
+      }
+    //  console.log('while setting prev2 prev was');
+    //  console.log(prev);
+  //    console.log('nreilit ');
+      for (const item in prev) {
+//        console.log('----------------');
+//        console.log(item);
+//        console.log('its prev is +' + prev[item]);
+        prev2[item] = prev[item];
+      }
 
-            //  console.log(path[path.length-i]);
-              pathhighlighter('div'+path[path.length-i-1].slice(1,));
-            }, 24);
+      //  console.log('prev 2 is set to');
+      //  console.log(prev2);
+      prev = [];
+      distances2 = g.djikstraAlgorithm(pass);
 
-            await sleep(25);
-            }
+      for (item in distances2) {
+        if (distances2[item][1] != Infinity) {
+          setTimeout(function() {
+            if (distances2[item][0] != start && distances2[item][0] != final && distances2[item][0] != pass)
+              propagater2('div' + distances2[item][0].slice(1, ));
+          }, 0.002);
+        }
+        await sleep(0.003);
+        if (distances2[item][0] == final) {
+          document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+          break;
+        }
+      }
+      curr = final;
+      var path2 = [];
+      if (prev[final] == null) {
+        console.log('TARGET CANNOT BE REACHED');
+      } else {
+        while (prev[curr] != null) {
+          //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+          path2.push(prev[curr]);
+          curr = prev[curr];
+        }
+        path2.pop();
+        //    console.log('this is the path : ');
+        //    console.log(path);
+      }
+      /////////////////////
+      for (i = 0; i < path.length; i++) {
+        path2.push(path[i]);
+      }
+      path = path2;
+      for (i in path) { //console.log(i);
+        setTimeout(function() {
 
-      path=[];
-      prev=[];
-      document.getElementById('div'+start.slice(1,)).style.backgroundColor='blue';
-      document.getElementById('div'+final.slice(1,)).style.backgroundColor='green';
+          //  console.log(path[path.length-i]);
+          pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+        }, 24);
 
-    document.getElementById('div'+pass.slice(1,)).style.backgroundColor='orange';
+        await sleep(25);
+      }
+
+      path = [];
+      document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+      document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+      document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
 
 
     }
-}
+  }
 </script>
 
 
 <script type="text/javascript">
+  async function myFunction(event) {
 
-async function myFunction(event) {
-
-document.getElementById(event.target.id).style.backgroundColor='green';
-
+    document.getElementById(event.target.id).style.backgroundColor = 'green';
+    animate = false;
 
 
-}
-function myFunction2(event)
-{
-  g=graphbuild()
-  document.getElementById(event.target.id).style.backgroundColor='green';
-  distances=g.djikstraAlgorithm(start);
+  }
 
-  animating(g);
-}
+  function myFunction2(event) {
+    g = graphbuild()
+    document.getElementById(event.target.id).style.backgroundColor = 'green';
+    distances = g.djikstraAlgorithm(start);
+
+    animating(g);
+    //  console.log('wall:');
+    //  console.log(wall);
+    check_prev_wall = wall.slice();
+    //  console.log('wall withe silce');
+    //  console.log(wall.slice());
+  }
 </script>
 
 <!-- for drag and drop of start point ,pass point and end point -->
 
 
 <script>
-var dragImg;
-function stick(event){
+  var dragImg;
+
+  function stick(event) {
 
 
-dragImg = event.target;
-var imagedragging = false;
+    dragImg = event.target;
 
-dragImg.addEventListener("mousedown", function (event) {
-  event.stopPropagation();
-  dragImg = event.target;
-  console.log("mousedown detected " + dragImg.clientHeight);
-  dragImg.setAttribute("class", "drag");
-  imagedragging = true;
+    dragImg.addEventListener("mousedown", function(event) {
+      event.stopPropagation();
+      dragImg = event.target;
+      //  console.log("mousedown detected " + dragImg.clientHeight);
+      dragImg.setAttribute("class", "drag");
+      imagedragging = true;
+      //  console.log('imagedragging is set true');
+    });
 
-  // document.addEventListener('mousedown', function documentMouseDown(){
-  //   if (imagedragging) {
-  //     dragImg.removeAttribute("class");
-  //     imagedragging = false;
-  //
-  //     document.removeEventListener('mousedown', documentMouseDown);
-  //   }
-  // });
-});
+    document.addEventListener("mousemove", function(event) {
+      if (imagedragging) {
+        //  console.log('mouse move and imagedragging is '+imagedragging);
+        dragImg.style.top = (event.clientY - dragImg.clientHeight / 2) + "px";
+        dragImg.style.left = (event.clientX - dragImg.clientWidth / 2) + "px";
+      }
+    });
 
-document.addEventListener("mousemove", function (event) {
-  if (imagedragging) {
-    dragImg.style.top = (event.clientY - dragImg.clientHeight/2) + "px";
-    dragImg.style.left = (event.clientX - dragImg.clientWidth/2) + "px";
+    document.body.addEventListener("mouseup", function(event) {
+      if (imagedragging) {
+        //  console.log("mouseup detected");
+
+        //reset position if not in clipboard
+        dragImg.removeAttribute("class");
+        //  console.log(dragImg.id+' here mouse is lifted at'+event.target.id);
+        //  console.log('imagedragging='+imagedragging+'   and animate='+animate);
+        if (event.target.id.slice(0, 3) == 'div')
+          document.getElementById(event.target.id).style.backgroundColor = 'orange';
+        if (dragImg.id == 'start') {
+          start = 'b' + event.target.id.slice(3, );
+          document.getElementById(event.target.id).style.backgroundColor = 'blue';
+        } else if (dragImg.id == 'end') {
+          final = 'b' + event.target.id.slice(3, );
+          document.getElementById(event.target.id).style.backgroundColor = 'green';
+        } else if (dragImg.id == 'pass') {
+          pass = 'b' + event.target.id.slice(3, );
+          document.getElementById(event.target.id).style.backgroundColor = 'orange';
+        }
+        dragImg.style.top = (event.clientY - dragImg.clientHeight / 2) + "px";
+        dragImg.style.left = (event.clientX - dragImg.clientWidth / 2) + "px";
+
+        dragImg = null;
+        imagedragging = false;
+        //console.log('imagedragging false');
+      }
+    });
+
+
+
   }
-});
-
-document.body.addEventListener("mouseup", function (event) {
-  if(imagedragging)
-  {
-  console.log("mouseup detected");
-  imagedragging = false;
-  //reset position if not in clipboard
-  dragImg.removeAttribute("class");
-  console.log(dragImg.id+' here mouse is lifted at'+event.target.id);
-  if(event.target.id.slice(0,3)=='div')
-  document.getElementById(event.target.id).style.backgroundColor='orange';
-  if(dragImg.id=='start')
-    {
-    start='b'+event.target.id.slice(3,);
-    document.getElementById(event.target.id).style.backgroundColor='blue';
-    }
-  else if(dragImg.id=='end')
-    {
-      final='b'+event.target.id.slice(3,);
-      document.getElementById(event.target.id).style.backgroundColor='green';
-    }
-  else if(dragImg.id=='pass')
-    {
-      pass='b'+event.target.id.slice(3,);
-      document.getElementById(event.target.id).style.backgroundColor='orange';
-    }
-  dragImg.style.top = (event.clientY - dragImg.clientHeight/2) + "px";
-  dragImg.style.left = (event.clientX - dragImg.clientWidth/2) + "px";
-
-dragImg=null;
-}
-});
-
-
-
-}
-
-
 </script>
 
 
 
 <!-- //////////////////////  this is war wall   //////////////////////////////// -->
 <script type="text/javascript">
+  function mousedown(e) {
 
-function mousedown(e)
-  {
+    var b_id = 'b' + e.target.id.slice(3, );
+    if (e.button == 0 && (!imagedragging)) {
+      lclicked = true;
+      if (!wall.includes('b' + e.target.id.slice(3, )) && e.target.id.slice(0, 3) == 'div') {
+        if ('b' + e.target.id.slice(3, ) != start && 'b' + e.target.id.slice(3, ) != final) {
 
-      var b_id='b'+e.target.id.slice(3,);
-    if(e.button==0 && (!imagedragging))
-      {
-        lclicked=true;
-        if(!wall.includes('b'+e.target.id.slice(3,)) && e.target.id.slice(0,3)=='div')
-          {
-            if('b'+e.target.id.slice(3,)!=start && 'b'+e.target.id.slice(3,)!=final)
-            {
-
-            //    console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
-            document.getElementById(e.target.id).style.backgroundColor='black';
-            wall.push('b'+e.target.id.slice(3,));
-          }
-           }
-      }
-      else if(e.button==2)
-        {
-          rclicked=true;
-          e.preventDefault();
-          if(wall.includes('b'+e.target.id.slice(3,)))
-            {
-              document.getElementById(e.target.id).style.backgroundColor='white';
-              var ind=wall.indexOf('b'+e.target.id.slice(3,));
-              if (ind > -1)
-                {
-                  wall.splice(ind, 1);
-                }
-            }
+          //    console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
+          document.getElementById(e.target.id).style.backgroundColor = 'black';
+          wall.push('b' + e.target.id.slice(3, ));
+          console.log('b' + e.target.id.slice(3, ) + '  has been push to the wall');
         }
-  }
-
-function mouseup(e)
-  {
-    if(e.button==0)
-      {
-        lclicked=false;
       }
-    if(e.button==2)
-      {e.preventDefault();
-        rclicked=false;
+    } else if (e.button == 2) {
+      rclicked = true;
+      e.preventDefault();
+      if (wall.includes('b' + e.target.id.slice(3, ))) {
+        document.getElementById(e.target.id).style.backgroundColor = 'white';
+        var ind = wall.indexOf('b' + e.target.id.slice(3, ));
+        if (ind > -1) {
+          wall.splice(ind, 1);
+        }
       }
-  }
-
-function entering(e)
-  {
-    var b_id='b'+e.target.id.slice(3,);
-    if(lclicked==true && (!imagedragging) && e.target.id.slice(0,3)=='div')
-      {
-        if(!wall.includes(b_id))
-          {
-          if(b_id!=start && b_id !=final && b_id!=pass)
-          {
-            console.log('entering s='+start+' f='+final+'  curr='+b_id);
-           wall.push(b_id);
-           document.getElementById(e.target.id).style.backgroundColor='black';
-
-
-          }
-         }
     }
-    else if(rclicked==true && (!imagedragging))
-      {
-        e.preventDefault();
-        if(wall.includes(b_id))
-          {
-            var ind=wall.indexOf(b_id);
-            if (ind > -1)
-              {
-                wall.splice(ind, 1);
+  }
+
+  function mouseup(e) {
+    if (e.button == 0) {
+      lclicked = false;
+    }
+    if (e.button == 2) {
+      e.preventDefault();
+      rclicked = false;
+    }
+  }
+
+  function entering(e) {
+    //  console.log('entering+ '+e.target.id+'with animate='+animate +" and imagedragging="+imagedragging);
+    var b_id = 'b' + e.target.id.slice(3, );
+    if (lclicked == true && (!imagedragging) && e.target.id.slice(0, 3) == 'div') {
+      if (!wall.includes(b_id)) {
+        if (b_id != start && b_id != final && b_id != pass) {
+          //        console.log('entering s='+start+' f='+final+'  curr='+b_id);
+          wall.push(b_id);
+          console.log(b_id + ' has been pushed to the wall');
+          document.getElementById(e.target.id).style.backgroundColor = 'black';
+
+
+        }
+      }
+    } else if (rclicked == true && (!imagedragging)) {
+      e.preventDefault();
+      if (wall.includes(b_id)) {
+        var ind = wall.indexOf(b_id);
+        if (ind > -1) {
+          wall.splice(ind, 1);
+        }
+        document.getElementById(e.target.id).style.backgroundColor = 'white';
+        //      console.log(wall);
+      }
+    } else if (animate && imagedragging) {
+      //  console.log('mosue has eneterd while dragging in '+e.target.id);
+      //    document.getElementById(e.target.id).style.backgroundColor='purple';
+      if (dragImg.id == 'end') {
+        final = 'b' + e.target.id.slice(3, );
+        var x = document.querySelectorAll("div");
+        for (i = 1; i < x.length; i++) {
+          x[i].style.backgroundColor = "white";
+        }
+        var k = document.querySelectorAll('td');
+        for (i = 1; i < k.length; i++) {
+          k[i].style.border = "1px solid black";
+        }
+        for (i in wall) {
+
+          document.getElementById('div' + wall[i].slice(1, )).style.backgroundColor = 'black';
+        }
+        if (!pass) {
+          if (arraysEqual(wall, check_prev_wall)) {
+            var ind;
+            for (var i = 0; i < distances.length; i++) {
+              if (distances[i].node == final) {
+                ind = i;
               }
-            document.getElementById(e.target.id).style.backgroundColor='white';
-            console.log(wall);
+            }
+
+            for (item in distances) {
+
+              if (item.node == start)
+                document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              else if (item.node == final)
+                document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              if (distances[item][1] != Infinity) {
+                //   console.log('see----->');
+                //   console.log(distances[item][0]);
+                if (distances[item][0] != final && distances[item][0] != start)
+                  //  console.log('$$$$$$ '+'div'+distances[item][0].slice(1,));
+                  propagater('div' + distances[item][0].slice(1, ));
+
+              }
+              if (distances[item][0] == final) {
+                document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'green';
+                break;
+              }
+            }
+
+            path = [];
+            curr = final;
+            //  console.log('distance::');
+            //  console.log(distances);
+            //  console.log(prev);
+            if (prev[final] == null) {
+              console.log('TARGET CANNOT BE REACHED');
+            } else {
+              while (prev[curr] != null) {
+                //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                path.push(prev[curr]);
+                curr = prev[curr];
+              }
+              path.pop();
+              //    console.log('this is the path : ');
+              //    console.log(path);
+            }
+            document.getElementById('div' + curr.slice(1, )).style.backgroundColor = 'blue';
+            for (i in path) { //console.log(i);
+
+              pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+            }
+          } else {
+  //          console.log('Wall has been changed bro');
+            g = graphbuild()
+            document.getElementById(event.target.id).style.backgroundColor = 'green';
+            distances = g.djikstraAlgorithm(start);
+
+            var ind;
+            for (var i = 0; i < distances.length; i++) {
+              if (distances[i].node == final) {
+                ind = i;
+              }
+            }
+
+            for (item in distances) {
+
+              if (item.node == start)
+                document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              else if (item.node == final)
+                document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              if (distances[item][1] != Infinity) {
+                //   console.log('see----->');
+                //   console.log(distances[item][0]);
+                if (distances[item][0] != final && distances[item][0] != start)
+                  //  console.log('$$$$$$ '+'div'+distances[item][0].slice(1,));
+                  propagater('div' + distances[item][0].slice(1, ));
+
+              }
+              if (distances[item][0] == final) {
+                document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'green';
+                break;
+              }
+            }
+
+            path = [];
+            curr = final;
+            //  console.log('distance::');
+            //  console.log(distances);
+            //  console.log(prev);
+      //      console.log('thi si prev');
+      //      console.log(prev);
+            if (prev[final] == null) {
+              console.log('TARGET CANNOT BE REACHED');
+            } else {
+              while (prev[curr] != null) {
+                //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                path.push(prev[curr]);
+                curr = prev[curr];
+              }
+              path.pop();
+              //    console.log('this is the path : ');
+              //    console.log(path);
+            }
+            document.getElementById('div' + curr.slice(1, )).style.backgroundColor = 'blue';
+            for (i in path) { //console.log(i);
+
+              pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+            }
+
+
+            check_prev_wall = wall.slice();
+
           }
-      }
-    else if(imagedragging && animate)
+        }
+        else {
+          if (arraysEqual(wall, check_prev_wall)) {
+            var ind;
+            for (var i = 0; i < distances2.length; i++) {
+              if (distances2[i].node == final) {
+                ind = i;
+              }
+            }
+
+            for (item in distances) {
+
+              if (item.node == start)
+                document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              else if (item.node == final)
+                document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              if (distances[item][1] != Infinity) {
+                //   console.log('see----->');
+                //   console.log(distances[item][0]);
+                if (distances[item][0] != final && distances[item][0] != start)
+                  //  console.log('$$$$$$ '+'div'+distances[item][0].slice(1,));
+                  propagater('div' + distances[item][0].slice(1, ));
+
+              }
+              if (distances[item][0] == pass) {
+                //document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='green';
+                break;
+              }
+            }
+
+            for (item in distances2) {
+
+              if (item.node == start)
+                document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              else if (item.node == final)
+                document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              if (distances2[item][1] != Infinity) {
+                //   console.log('see----->');
+                //   console.log(distances[item][0]);
+                if (distances2[item][0] != final && distances2[item][0] != start)
+                  //  console.log('$$$$$$ '+'div'+distances[item][0].slice(1,));
+                  propagater2('div' + distances2[item][0].slice(1, ));
+
+              }
+              if (distances2[item][0] == final) {
+                document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'green';
+                break;
+              }
+            }
+
+
+            path = [];
+            curr = pass;
+      //      console.log('this is prev2:');
+    //        console.log(prev2);
+            if (prev2[pass] == null) {
+              console.log('TARGET CANNOT BE REACHED');
+            } else {
+              while (prev2[curr] != null) {
+                //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                path.push(prev2[curr]);
+                curr = prev2[curr];
+              }
+              path.pop();
+              //    console.log('this is the path : ');
+              //    console.log(path);
+            }
+
+
+            curr = final;
+            var path2 = [];
+            if (prev[final] == null) {
+              console.log('TARGET CANNOT BE REACHED');
+            } else {
+              while (prev[curr] != null) {
+                //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                path2.push(prev[curr]);
+                curr = prev[curr];
+              }
+              path2.pop();
+              //    console.log('this is the path : ');
+              //    console.log(path);
+            }
+            /////////////////////
+            for (i = 0; i < path.length; i++) {
+              path2.push(path[i]);
+            }
+            path = path2;
+            for (i in path) { //console.log(i);
+
+              //  console.log(path[path.length-i]);
+              pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+            }
+
+            path = [];
+
+            document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+            document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+            document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+            ////////////////////////////////////////////
+            /////////////////////////////////////////////
+            ////////////////////////////////////////////
+
+
+
+
+
+          }
+          else {//here wer have to consider wall has been changed and pass is there
+
+            g = graphbuild()
+            document.getElementById(event.target.id).style.backgroundColor = 'green';
+            distances = g.djikstraAlgorithm(start);
+
+
+
+                console.log('------------------pass-----------------------wall changed--------------------------');
+
+                  document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                  document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                  document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+                  for (item in distances) {
+                    if (distances[item][1] != Infinity) {
+                      if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+
+                          propagater('div' + distances[item][0].slice(1, ));
+                    }
+                    if (distances[item][0] == pass) {
+                      document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
+                      break;
+                    }
+                  }
+                  curr = pass;
+                  if (prev[final] == null) {
+                    console.log('TARGET CANNOT BE REACHED');
+                  } else {
+                    while (prev[curr] != null) {
+                      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                      path.push(prev[curr]);
+                      curr = prev[curr];
+                    }
+                    path.pop();
+                    //    console.log('this is the path : ');
+                    //    console.log(path);
+                  }
+              //    console.log('while setting prev2 prev was');
+                //  console.log(prev);
+                //  console.log('nreilit ');
+                  for (const item in prev) {
+              //      console.log('----------------');
+              //      console.log(item);
+              //      console.log('its prev is +' + prev[item]);
+                    prev2[item] = prev[item];
+                  }
+
+                  //  console.log('prev 2 is set to');
+                  //  console.log(prev2);
+                  prev = [];
+                  distances2 = g.djikstraAlgorithm(pass);
+
+                  for (item in distances2) {
+                    if (distances2[item][1] != Infinity) {
+
+                          propagater2('div' + distances2[item][0].slice(1, ));
+                    }
+                    if (distances2[item][0] == final) {
+                      document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+                      break;
+                    }
+                  }
+                  curr = final;
+                  var path2 = [];
+                  if (prev[final] == null) {
+                    console.log('TARGET CANNOT BE REACHED');
+                  } else {
+                    while (prev[curr] != null) {
+                      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                      path2.push(prev[curr]);
+                      curr = prev[curr];
+                    }
+                    path2.pop();
+                    //    console.log('this is the path : ');
+                    //    console.log(path);
+                  }
+                  /////////////////////
+                  for (i = 0; i < path.length; i++) {
+                    path2.push(path[i]);
+                  }
+                  path = path2;
+                  for (i in path) { //console.log(i);
+
+                      //  console.log(path[path.length-i]);
+                      pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+
+                  }
+
+                  path = [];
+                  document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                  document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                  document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+
+
+
+                check_prev_wall=wall.slice();
+
+
+
+
+
+
+
+          }//end of pass and wall changed when image was end;
+
+
+        }//end of all pass
+
+
+
+
+      }//end of end image dragging
+    else if (dragImg.id == 'pass')
       {
-        console.log('mosue has eneterd while dragging in '+e.target.id);
+
+        pass = 'b' + e.target.id.slice(3, );
+        var x = document.querySelectorAll("div");
+        for (i = 1; i < x.length; i++) {
+          x[i].style.backgroundColor = "white";
+        }
+        var k = document.querySelectorAll('td');
+        for (i = 1; i < k.length; i++) {
+          k[i].style.border = "1px solid black";
+        }
+        for (i in wall) {
+
+          document.getElementById('div' + wall[i].slice(1, )).style.backgroundColor = 'black';
+        }
+        if(check_prev_pass_exist==true)
+        {
+          if(arraysEqual(wall,check_prev_wall))
+            {  //walls are same
+
+              prev = [];
+              distances2 = g.djikstraAlgorithm(pass);
+              for(item in distances)
+              {
+                if(distances[item][1]!=Infinity)
+                {
+                  propagater('div'+distances[item][0].slice(1,));
+
+                }
+                if(distances[item][0]==pass)
+                  {
+                    document.getElementById('div'+distances[item][0].slice(1,)).style.backgroundColor='skyblue';
+                    break;
+                  }
+
+              }
+              for (item in distances2) {
+                if (distances2[item][1] != Infinity) {
+
+                      propagater2('div' + distances2[item][0].slice(1, ));
+                }
+                if (distances2[item][0] == final) {
+                  document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+                  break;
+                }
+              }
+              curr = pass;
+              if (prev2[pass] == null) {
+                console.log('TARGET CANNOT BE REACHED');
+              } else {
+                while (prev2[curr] != null) {
+                  //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                  path.push(prev2[curr]);
+                  curr = prev2[curr];
+                }
+                path.pop();
+
+              curr = final;
+              var path2 = [];
+              if (prev[final] == null) {
+                console.log('TARGET CANNOT BE REACHED');
+              } else {
+                while (prev[curr] != null) {
+                  //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                  path2.push(prev[curr]);
+                  curr = prev[curr];
+                }
+                path2.pop();
+                //    console.log('this is the path : ');
+                //    console.log(path);
+              }
+              /////////////////////
+              for (i = 0; i < path.length; i++) {
+                path2.push(path[i]);
+              }
+              path = path2;
+              for (i in path) { //console.log(i);
+
+                  //  console.log(path[path.length-i]);
+                  pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+
+              }
+
+              path = [];
+              document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+
+
+
+
+
+            }
+
+        }
+        else {
+          g = graphbuild()
+          document.getElementById(event.target.id).style.backgroundColor = 'green';
+          distances = g.djikstraAlgorithm(start);
+
+
+
+              console.log('------------------pass-----------------------wall changed--------------------------');
+
+                document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+                for (item in distances) {
+                  if (distances[item][1] != Infinity) {
+                    if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+
+                        propagater('div' + distances[item][0].slice(1, ));
+                  }
+                  if (distances[item][0] == pass) {
+                    document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
+                    break;
+                  }
+                }
+                curr = pass;
+                if (prev[final] == null) {
+                  console.log('TARGET CANNOT BE REACHED');
+                } else {
+                  while (prev[curr] != null) {
+                    //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                    path.push(prev[curr]);
+                    curr = prev[curr];
+                  }
+                  path.pop();
+                  //    console.log('this is the path : ');
+                  //    console.log(path);
+                }
+            //    console.log('while setting prev2 prev was');
+              //  console.log(prev);
+              //  console.log('nreilit ');
+                for (const item in prev) {
+            //      console.log('----------------');
+            //      console.log(item);
+            //      console.log('its prev is +' + prev[item]);
+                  prev2[item] = prev[item];
+                }
+
+                //  console.log('prev 2 is set to');
+                //  console.log(prev2);
+                prev = [];
+                distances2 = g.djikstraAlgorithm(pass);
+
+                for (item in distances2) {
+                  if (distances2[item][1] != Infinity) {
+
+                        propagater2('div' + distances2[item][0].slice(1, ));
+                  }
+                  if (distances2[item][0] == final) {
+                    document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+                    break;
+                  }
+                }
+                curr = final;
+                var path2 = [];
+                if (prev[final] == null) {
+                  console.log('TARGET CANNOT BE REACHED');
+                } else {
+                  while (prev[curr] != null) {
+                    //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                    path2.push(prev[curr]);
+                    curr = prev[curr];
+                  }
+                  path2.pop();
+                  //    console.log('this is the path : ');
+                  //    console.log(path);
+                }
+                /////////////////////
+                for (i = 0; i < path.length; i++) {
+                  path2.push(path[i]);
+                }
+                path = path2;
+                for (i in path) { //console.log(i);
+
+                    //  console.log(path[path.length-i]);
+                    pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+
+                }
+
+                path = [];
+                document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+
+
+
+              check_prev_wall=wall.slice();
+
+
+
+        }
+
+
+
+
       }
+      else {
+        //when walls are changed and dragImg is pass
+        g = graphbuild()
+        prev=[];
+        prev2=[];
+        document.getElementById(event.target.id).style.backgroundColor = 'green';
+        distances = g.djikstraAlgorithm(start);
+
+
+
+            console.log('------------------pass-----------------------wall changed--------------------------');
+
+              document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+              for (item in distances) {
+                if (distances[item][1] != Infinity) {
+                  if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+
+                      propagater('div' + distances[item][0].slice(1, ));
+                }
+                if (distances[item][0] == pass) {
+                  document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
+                  break;
+                }
+              }
+              curr = pass;
+              if (prev[final] == null) {
+                console.log('TARGET CANNOT BE REACHED   spsps');
+              } else {
+                while (prev[curr] != null) {
+                  //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                  path.push(prev[curr]);
+                  curr = prev[curr];
+                }
+                path.pop();
+                //    console.log('this is the path : ');
+                //    console.log(path);
+              }
+          //    console.log('while setting prev2 prev was');
+            //  console.log(prev);
+            //  console.log('nreilit ');
+              for (const item in prev) {
+          //      console.log('----------------');
+          //      console.log(item);
+          //      console.log('its prev is +' + prev[item]);
+                prev2[item] = prev[item];
+              }
+
+              //  console.log('prev 2 is set to');
+              //  console.log(prev2);
+              prev = [];
+              distances2 = g.djikstraAlgorithm(pass);
+
+              for (item in distances2) {
+                if (distances2[item][1] != Infinity) {
+
+                      propagater2('div' + distances2[item][0].slice(1, ));
+                }
+                if (distances2[item][0] == final) {
+                  document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+                  break;
+                }
+              }
+              curr = final;
+              var path2 = [];
+              if (prev[final] == null) {
+                console.log('TARGET CANNOT BE REACHED');
+              } else {
+                while (prev[curr] != null) {
+                  //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                  path2.push(prev[curr]);
+                  curr = prev[curr];
+                }
+                path2.pop();
+                //    console.log('this is the path : ');
+                //    console.log(path);
+              }
+              /////////////////////
+              for (i = 0; i < path.length; i++) {
+                path2.push(path[i]);
+              }
+              path = path2;
+              for (i in path) { //console.log(i);
+
+                  //  console.log(path[path.length-i]);
+                  pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+
+              }
+
+              path = [];
+              document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+              document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+              document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+
+
+
+            check_prev_wall=wall.slice();
+
+
+
+
+
+
+      }//end of walls are changed and dragImg is pass
+
+
+    }//end for dragImg is pass
+    else if (dragImg.id=='start')
+    {
+      start = 'b' + e.target.id.slice(3, );
+      var x = document.querySelectorAll("div");
+      for (i = 1; i < x.length; i++) {
+        x[i].style.backgroundColor = "white";
+      }
+      var k = document.querySelectorAll('td');
+      for (i = 1; i < k.length; i++) {
+        k[i].style.border = "1px solid black";
+      }
+      for (i in wall) {
+
+        document.getElementById('div' + wall[i].slice(1, )).style.backgroundColor = 'black';
+      }
+
+          if(!pass)
+              {
+                  //////
+                  g = graphbuild()
+                  document.getElementById(event.target.id).style.backgroundColor = 'green';
+                  distances = g.djikstraAlgorithm(start);
+
+                  var ind;
+                  for (var i = 0; i < distances.length; i++) {
+                    if (distances[i].node == final) {
+                      ind = i;
+                    }
+                  }
+
+                  for (item in distances) {
+
+                    if (item.node == start)
+                      document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                    else if (item.node == final)
+                      document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                    if (distances[item][1] != Infinity) {
+                      //   console.log('see----->');
+                      //   console.log(distances[item][0]);
+                      if (distances[item][0] != final && distances[item][0] != start)
+                        //  console.log('$$$$$$ '+'div'+distances[item][0].slice(1,));
+                        propagater('div' + distances[item][0].slice(1, ));
+
+                    }
+                    if (distances[item][0] == final) {
+                      document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'green';
+                      break;
+                    }
+                  }
+
+                  path = [];
+                  curr = final;
+                  //  console.log('distance::');
+                  //  console.log(distances);
+                  //  console.log(prev);
+            //      console.log('thi si prev');
+            //      console.log(prev);
+                  if (prev[final] == null) {
+                    console.log('TARGET CANNOT BE REACHED');
+                  } else {
+                    while (prev[curr] != null) {
+                      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                      path.push(prev[curr]);
+                      curr = prev[curr];
+                    }
+                    path.pop();
+                    //    console.log('this is the path : ');
+                    //    console.log(path);
+                  }
+                  document.getElementById('div' + curr.slice(1, )).style.backgroundColor = 'blue';
+                  for (i in path) { //console.log(i);
+
+                    pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+                  }
+
+
+                  check_prev_wall = wall.slice();
+              }
+          else {
+            g = graphbuild()
+            document.getElementById(event.target.id).style.backgroundColor = 'green';
+            distances = g.djikstraAlgorithm(start);
+
+
+
+                console.log('------------------pass-----------------------wall changed--------------------------');
+
+                  document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                  document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                  document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+                  for (item in distances) {
+                    if (distances[item][1] != Infinity) {
+                      if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+
+                          propagater('div' + distances[item][0].slice(1, ));
+                    }
+                    if (distances[item][0] == pass) {
+                      document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
+                      break;
+                    }
+                  }
+                  curr = pass;
+                  if (prev[final] == null) {
+                    console.log('TARGET CANNOT BE REACHED');
+                  } else {
+                    while (prev[curr] != null) {
+                      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                      path.push(prev[curr]);
+                      curr = prev[curr];
+                    }
+                    path.pop();
+                    //    console.log('this is the path : ');
+                    //    console.log(path);
+                  }
+              //    console.log('while setting prev2 prev was');
+                //  console.log(prev);
+                //  console.log('nreilit ');
+                  for (const item in prev) {
+              //      console.log('----------------');
+              //      console.log(item);
+              //      console.log('its prev is +' + prev[item]);
+                    prev2[item] = prev[item];
+                  }
+
+                  //  console.log('prev 2 is set to');
+                  //  console.log(prev2);
+                  prev = [];
+                  distances2 = g.djikstraAlgorithm(pass);
+
+                  for (item in distances2) {
+                    if (distances2[item][1] != Infinity) {
+
+                          propagater2('div' + distances2[item][0].slice(1, ));
+                    }
+                    if (distances2[item][0] == final) {
+                      document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+                      break;
+                    }
+                  }
+                  curr = final;
+                  var path2 = [];
+                  if (prev[final] == null) {
+                    console.log('TARGET CANNOT BE REACHED');
+                  } else {
+                    while (prev[curr] != null) {
+                      //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
+                      path2.push(prev[curr]);
+                      curr = prev[curr];
+                    }
+                    path2.pop();
+                    //    console.log('this is the path : ');
+                    //    console.log(path);
+                  }
+                  /////////////////////
+                  for (i = 0; i < path.length; i++) {
+                    path2.push(path[i]);
+                  }
+                  path = path2;
+                  for (i in path) { //console.log(i);
+
+                      //  console.log(path[path.length-i]);
+                      pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+
+
+                  }
+
+                  path = [];
+                  document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
+                  document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
+
+                  document.getElementById('div' + pass.slice(1, )).style.backgroundColor = 'orange';
+
+
+
+
+                check_prev_wall=wall.slice();
+
+
+
+
+          }
+
+
+
+
+    }
+  }
+
 }
-
-
 </script>
 
 <!-- prevernting the right click default of the google chrome -->
 
 <script type="text/javascript">
-
-document.getElementById('graph').addEventListener('contextmenu', function(evt) {
-  evt.preventDefault();
-}, false);
-
+  document.getElementById('graph').addEventListener('contextmenu', function(evt) {
+    evt.preventDefault();
+  }, false);
 </script>
 
 
