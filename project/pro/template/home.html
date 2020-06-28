@@ -33,7 +33,7 @@
         {% for col in cols %}
         <td id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding:0px;margin:0px;">
 
-          <div id="div_{{row}}_{{col}}" style='margin:0px;width:21.4px;height:19px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
+          <div id="div_{{row}}_{{col}}" style='margin:0px;width:23.8px;height:21.8px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
         </td>
         {%endfor%}
@@ -1215,16 +1215,21 @@ sleep function
 
       }
       else {
-        //when walls are changed and dragImg is pass
+        console.log('Unexpected entery of PASSS');
         g = graphbuild()
         prev=[];
         prev2=[];
+        distances=[];
+        distances2=[];
+        path=[];
+        path2=[];
+        check_prev_pass_exist=true;
         document.getElementById(event.target.id).style.backgroundColor = 'green';
         distances = g.djikstraAlgorithm(start);
 
 
 
-            console.log('------------------pass-----------------------wall changed--------------------------');
+        //    console.log('------------------pass-----------------------wall changed--------------------------');
 
               document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
               document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
