@@ -11,8 +11,8 @@
 <body>
 
   <ul>
-    <li><button id='nav1' onclick="myFunction(event)">Djkastra</button></li>
-    <li><button id='nav2'>A* algorithm</button></li>
+    <li><button id='nav1' onclick="my1(event)">Djkastra</button></li>
+    <li><button id='nav2' onclick="my2(event)">A* algorithm</button></li>
     <li><button id='nav3'>3rd algo</button></li>
     <center style='float:right'>
       <li><button id='nav4' onclick='myFunction2(event)'>Visualize</button></li>
@@ -58,6 +58,7 @@
   var path2 = [];
   var prev = [];
   var prev2 = [];
+  var selected_algo;
   var distances = [];
   var check_prev_wall = [];
   var check_prev_pass_exist=false;
@@ -139,6 +140,64 @@
       });
       return sortable;
     }
+
+//this is A* algorithm
+    A_star(startNode,endNode)
+      {
+
+        let distances = {};
+        let pred_distances={};
+        // Stores the reference to previous nodes
+        let final_i=endNode.split("_")[1];
+        let final_j=endNode.split("_")[2];
+        let pq = new PriorityQueue(this.nodes.length * this.nodes.length);
+
+        for(let i=1;i<={{nrows}};i++)
+          {
+            for(let j=1;j<={{ncols}};j++)
+              {
+                pred_distances['b_'+i+'_'+j]=abs(final_j-j)+abs(final_i-i);
+              }
+          }
+        // Set distances to all nodes to be infinite except startNode
+        distances[startNode] = 0;
+        pq.enqueue(startNode, 0);
+        this.nodes.forEach(node => {
+          if (node !== startNode) distances[node] = Infinity;
+          prev[node] = null;
+        });
+
+        while (!pq.isEmpty()) {
+          let minNode = pq.dequeue();
+          let currNode = minNode.data;
+          let weight = minNode.priority;
+          this.edges[currNode].forEach(neighbor => {
+            let alt = distances[currNode] + neighbor.weight;
+            if (alt < distances[neighbor.node]) {
+              distances[neighbor.node] = alt;
+              prev[neighbor.node] = currNode;
+              pq.enqueue(neighbor.node, distances[neighbor.node]);
+
+            }
+          });
+        }
+       for(i in distances)
+       {
+         distances[i]=distances[i]+pred_distances[i];
+       }
+
+        var sortable = [];
+        for (var n in distances) {
+          sortable.push([n, distances[n]]);
+        }
+        sortable.sort(function(a, b) {
+          return a[1] - b[1];
+        });
+        return sortable;
+
+
+      }
+
   }
 
 
@@ -230,7 +289,12 @@
     }
     return true;
   }
-
+  function abs(x){
+    if(x>0)
+      return x;
+    else
+    return -x;
+  }
 
 
   function pathhighlighter(id) {
@@ -340,6 +404,8 @@ sleep function
     path = [];
     //  console.log(distances);
     if (!pass) {
+      if(selected_algo=='A*')
+          distances=g.A_star(start,final);
       document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
       document.getElementById('div' + final.slice(1, )).style.backgroundColor = 'green';
 
@@ -392,6 +458,8 @@ sleep function
 
 
     } else {
+      if(selected_algo=='A*')
+          distances=g.A_star(start,pass);
 
       check_prev_pass_exist=true;
       document.getElementById('div' + start.slice(1, )).style.backgroundColor = 'blue';
@@ -401,15 +469,49 @@ sleep function
 
       for (item in distances) {
         if (distances[item][1] != Infinity) {
-          if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
-            setTimeout(function() {
-              propagater('div' + distances[item][0].slice(1, ));
-            }, 0.002);
+          if(selected_algo=='djkastra')
+          {
+            if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+              setTimeout(function() {
+                propagater('div' + distances[item][0].slice(1, ));
+              }, 0.002);
+          }
+
+          else {
+            if (distances[item][0] != final && distances[item][0] != start && distances[item][0] != pass)
+              setTimeout(function() {
+                propagater('div' + distances[item][0].slice(1, ));
+              }, 10);
+          }
         }
+        if(selected_algo=='djkastra')
         await sleep(0.003);
-        if (distances[item][0] == pass) {
-          document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
-          break;
+        else {
+          await sleep(11.6);
+        }
+        if(selected_algo=='djkastra')
+        {
+          if (distances[item][0] == pass) {
+            document.getElementById('div' + distances[item][0].slice(1, )).style.backgroundColor = 'pink';
+            break;
+          }
+        }
+        else {
+          var fin_ind;
+          for(t in distances)
+          {
+            if(distances[t][0]==pass)
+            {
+              fin_ind=t;
+            }
+          }
+          var d=distances[fin_ind][1];
+
+        if(distances[item][1]>d)
+          {
+            break;
+          }
+
         }
       }
       curr = pass;
@@ -438,21 +540,89 @@ sleep function
       //  console.log('prev 2 is set to');
       //  console.log(prev2);
       prev = [];
+      if(selected_algo=='djkastra')
       distances2 = g.djikstraAlgorithm(pass);
-
-      for (item in distances2) {
-        if (distances2[item][1] != Infinity) {
-          setTimeout(function() {
-            if (distances2[item][0] != start && distances2[item][0] != final && distances2[item][0] != pass)
-              propagater2('div' + distances2[item][0].slice(1, ));
-          }, 0.002);
-        }
-        await sleep(0.003);
-        if (distances2[item][0] == final) {
-          document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
-          break;
-        }
+      else {
+        distances2=g.A_star(pass,final)
       }
+      for (item in distances2) {
+
+          //////////////////////////////////////////////////////////////////////////////////
+            if (distances[item][1] != Infinity) {
+          if(selected_algo=='djkastra')
+          {
+            if (distances2[item][0] != final && distances2[item][0] != start && distances2[item][0] != pass)
+              setTimeout(function() {
+                propagater2('div' + distances2[item][0].slice(1, ));
+              }, 0.002);
+          }
+
+          else {
+            if (distances2[item][0] != final && distances2[item][0] != start && distances2[item][0] != pass)
+              setTimeout(function() {
+                propagater2('div' + distances2[item][0].slice(1, ));
+              }, 10);
+          }
+        }
+        if(selected_algo=='djkastra')
+        await sleep(0.003);
+        else {
+          await sleep(11.6);
+        }
+        if(selected_algo=='djkastra')
+        {
+          if (distances2[item][0] == final) {
+            document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+            break;
+          }
+        }
+        else {
+          var fin_ind;
+          for(t in distances2)
+          {
+            if(distances2[t][0]==final)
+            {
+              fin_ind=t;
+            }
+          }
+          var d=distances2[fin_ind][1];
+
+        if(distances2[item][1]>d)
+          {
+            break;
+          }
+
+        }
+      
+    }
+
+          //////////////////////////////////////////////////////////////////////////////
+
+
+
+      //   if (distances2[item][1] != Infinity) {
+      //     if(selected_algo=='djkastra')
+      //     setTimeout(function() {
+      //       if (distances2[item][0] != start && distances2[item][0] != final && distances2[item][0] != pass)
+      //         propagater2('div' + distances2[item][0].slice(1, ));
+      //     }, 0.002);
+      //   else {
+      //     setTimeout(function() {
+      //       if (distances2[item][0] != start && distances2[item][0] != final && distances2[item][0] != pass)
+      //         propagater2('div' + distances2[item][0].slice(1, ));
+      //     }, 10);
+      //   }
+      //   }
+      //   if(selected_algo=='djkastra')
+      //   await sleep(0.003);
+      //   else {
+      //     await sleep(11.6);
+      //   }
+      //   if (distances2[item][0] == final) {
+      //     document.getElementById('div' + distances2[item][0].slice(1, )).style.backgroundColor = 'pink';
+      //     break;
+      //   }
+      // }
       curr = final;
       var path2 = [];
       if (prev[final] == null) {
@@ -495,20 +665,26 @@ sleep function
 
 
 <script type="text/javascript">
-  async function myFunction(event) {
-
+function my1(event)
+{
+  document.getElementById(event.target.id).style.backgroundColor = 'green';
+  selected_algo='djkastra';
+}
+function my2(event)
+{
     document.getElementById(event.target.id).style.backgroundColor = 'green';
-    animate = false;
+    selected_algo='A*';
+}
 
-
-  }
 
   function myFunction2(event) {
     g = graphbuild()
     document.getElementById(event.target.id).style.backgroundColor = 'green';
+    if(selected_algo=='djkastra')
     distances = g.djikstraAlgorithm(start);
 
     animating(g);
+    console.log(distances);
     //  console.log('wall:');
     //  console.log(wall);
     check_prev_wall = wall.slice();
