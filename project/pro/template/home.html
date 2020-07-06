@@ -6,6 +6,13 @@
   <meta charset="utf-8">
   <title></title>
   <link rel="stylesheet" href="{% static 'css/s.css'%}">
+  <style media="screen">
+  .fa
+  {
+    text-align: center;
+
+  }
+  </style>
 </head>
 
 <body>
@@ -31,7 +38,7 @@
 
 
         {% for col in cols %}
-        <td id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding:0px;margin:0px;">
+        <td id='b_{{row}}_{{col}}' style="width:15px;height:15px;padding-right:0px;margin:0px;">
 
           <div id="div_{{row}}_{{col}}" style='margin:0px;width:23.8px;height:21.8px;display:block;' onmouseenter='entering(event)' onmousedown="mousedown(event)" onmouseup="mouseup(event)"></div>
 
@@ -40,12 +47,13 @@
       </tr>
       {% endfor%}
     </table>
-  </div>
 
+  </div>
 
 </body>
 
 <!--varible declaration and initials-->
+<script src="https://use.fontawesome.com/a016dd128e.js"></script>
 <script type="text/javascript">
   var start;
   var final;
@@ -60,7 +68,10 @@
   var prev2 = [];
   var selected_algo;
   var distances = [];
+  var middleclicked=false;
   var check_prev_wall = [];
+  var obstacles=[];
+  var check_prev_obstacles=[];
   var check_prev_pass_exist=false;
   var animate = false;
   var g;
@@ -496,6 +507,25 @@ sleep function
       }
 
     }
+    for(item in obstacles)
+    {
+      var element=document.getElementById('div' + obstacles[item].slice(1, ))
+      element.classList.add("fa","fa-lock");
+      nearest = g.edges[obstacles[item]];
+      for (i in nearest) {
+        nearest[i].weight = 5;
+      }
+    }
+    for (k in g.edges) {
+      for (t in g.edges[k]) {
+        if (obstacles.includes(g.edges[k][t].node)) {
+          g.edges[k][t].weight = 5;
+
+        }
+      }
+
+
+    }
     for (k in g.edges) {
       for (t in g.edges[k]) {
         if (wall.includes(g.edges[k][t].node)) {
@@ -796,6 +826,7 @@ function my1(event)
   }
 
   check_prev_wall = wall.slice();
+  check_prev_obstacles=obstacles.slice();
 
 }
 function my2(event)
@@ -813,6 +844,7 @@ function my2(event)
       animation_with_pass(true,true);
     }
     check_prev_wall = wall.slice();
+    check_prev_obstacles=obstacles.slice();
 }
 
 
@@ -835,8 +867,6 @@ function my3(event)
 
   function myFunction2(event) {
 
-    //  console.log('wall withe silce');
-    //  console.log(wall.slice());
     return 2+5;
   }
 </script>
@@ -921,7 +951,22 @@ function my3(event)
           console.log('b' + e.target.id.slice(3, ) + '  has been push to the wall');
         }
       }
-    } else if (e.button == 2) {
+    }
+    else if(e.button==1 &&(!imagedragging))
+    {
+      middleclicked = true;
+      if (!obstacles.includes('b' + e.target.id.slice(3, )) && e.target.id.slice(0, 3) == 'div') {
+
+          //    console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
+          var element=document.getElementById(e.target.id)
+          element.classList.add("fa","fa-lock");
+          obstacles.push('b' + e.target.id.slice(3, ));
+          console.log('b' + e.target.id.slice(3, ) + '  has been push to the obstacles');
+
+      }
+
+    }
+    else if (e.button == 2) {
       rclicked = true;
       e.preventDefault();
       if (wall.includes('b' + e.target.id.slice(3, ))) {
@@ -931,6 +976,14 @@ function my3(event)
           wall.splice(ind, 1);
         }
       }
+      if (obstacles.includes('b' + e.target.id.slice(3, ))) {
+        document.getElementById(e.target.id).classList.remove("fa","fa-lock");
+        var ind = obstacles.indexOf('b' + e.target.id.slice(3, ));
+        if (ind > -1) {
+          obstacles.splice(ind, 1);
+        }
+      }
+
     }
   }
 
@@ -941,6 +994,11 @@ function my3(event)
     if (e.button == 2) {
       e.preventDefault();
       rclicked = false;
+    }
+    if(e.button == 1)
+    {
+      e.preventDefault();
+      middleclicked=false;
     }
   }
 
@@ -958,7 +1016,18 @@ function my3(event)
 
         }
       }
-    } else if (rclicked == true && (!imagedragging)) {
+    }
+    else if(middleclicked == true && (!imagedragging))
+    {
+      e.preventDefault();
+      if (!obstacles.includes(b_id)) {
+          obstacles.push(b_id);
+          console.log(b_id + ' has been pushed to the obstacles');
+          var element=document.getElementById(e.target.id)
+          element.classList.add("fa","fa-lock");
+      }
+    }
+    else if (rclicked == true && (!imagedragging)) {
       e.preventDefault();
       if (wall.includes(b_id)) {
         var ind = wall.indexOf(b_id);
@@ -967,6 +1036,15 @@ function my3(event)
         }
         document.getElementById(e.target.id).style.backgroundColor = 'white';
         //      console.log(wall);
+      }
+      if(obstacles.includes(b_id))
+      {
+        var ind = obstacles.indexOf(b_id);
+      if (ind > -1) {
+        obstacles.splice(ind, 1);
+      }
+      document.getElementById(e.target.id).classList.remove("fa","fa-lock");
+
       }
     } else if (animate && imagedragging) {
       //  console.log('mosue has eneterd while dragging in '+e.target.id);
@@ -994,7 +1072,7 @@ function my3(event)
                                       graphbuild();
                                       if(pass)
                                         {
-                                            if(arraysEqual(wall,check_prev_wall))
+                                            if(arraysEqual(wall,check_prev_wall) && arraysEqual(obstacles,check_prev_obstacles))
                                               {
                                                 animation_with_pass(false,false);
                                                 path=[];
@@ -1006,13 +1084,14 @@ function my3(event)
                                                   distances=g.djikstraAlgorithm(start);
                                                   animation_with_pass(false,true);
                                                   check_prev_wall=wall.slice();
+                                                  obstacles=check_prev_obstacles.slice();
                                               }
 
 
                                         }
                                         else {
 
-                                            if(arraysEqual(wall,check_prev_wall))
+                                            if(arraysEqual(wall,check_prev_wall) && arraysEqual(obstacles,check_prev_obstacles))
                                             {
                                                 animation_without_pass(false);
                                             }
@@ -1021,6 +1100,7 @@ function my3(event)
                                                 distances=g.djikstraAlgorithm(start);
                                                 animation_without_pass(false);
                                                 check_prev_wall=wall.slice();
+                                                check_prev_obstacles=obstacles.slice();
                                             }
 
                                         }
@@ -1043,7 +1123,7 @@ function my3(event)
 
               if(check_prev_pass_exist)
               {
-                  if(arraysEqual(check_prev_wall,wall))
+                  if(arraysEqual(check_prev_wall,wall) && arraysEqual(obstacles,check_prev_obstacles))
                     {
                         console.log('|||||||||||||||||||');
                         g=graphbuild();
@@ -1055,6 +1135,7 @@ function my3(event)
                         distances=g.djikstraAlgorithm(start);
                         animation_with_pass(false,true);
                         check_prev_wall=wall.slice();
+                        check_prev_obstacles=obstacles.slice();
                   }
               }
               else {
@@ -1062,6 +1143,7 @@ function my3(event)
                 distances=g.djikstraAlgorithm(start);
                 animation_with_pass(false,true);
                 check_prev_wall=wall.slice();
+                check_prev_obstacles=obstacles.slice();
               }
         }
       }  //end of pass image draging
