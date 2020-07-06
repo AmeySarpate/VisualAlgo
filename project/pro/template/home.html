@@ -309,36 +309,28 @@ class Stack {
 /////////////////////////
 class Queue {
    constructor(maxSize) {
-      // Set default max size if not provided
       if (isNaN(maxSize)) {
          maxSize = 2000;
       }
       this.maxSize = maxSize;
-      // Init an array that'll contain the queue values.
       this.container = [];
     }
-   // Helper function to display all values while developing
    display() {
       console.log(this.container);
    }
-   // Checks if queue is empty
    isEmpty() {
       return this.container.length === 0;
    }
-   // checks if queue is full
    isFull() {
       return this.container.length >= this.maxSize;
    }
    enqueue(element) {
-      // Check if Queue is full
       if (this.isFull()) {
          console.log("Queue Overflow!"); return;
       }
-      // Since we want to add elements to end, we'll just push them.
       this.container.push(element);
    }
    dequeue() {
-      // Check if empty
       if (this.isEmpty()) {
          console.log("Queue Underflow!");
          return;
@@ -362,28 +354,23 @@ class Queue {
 ////////////////////
   class PriorityQueue {
     constructor(maxSize) {
-      // Set default max size if not provided
       if (isNaN(maxSize)) {
         maxSize = 100;
       }
       this.maxSize = maxSize;
-      // Init an array that'll contain the queue values.
       this.container = [];
     }
-    // Helper function to display all values while developing
     display() {
-      //    console.log(this.container);
     }
     // Checks if queue is empty
     isEmpty() {
       return this.container.length === 0;
     }
-    // checks if queue is full
+
     isFull() {
       return this.container.length >= this.maxSize;
     }
     enqueue(data, priority) {
-      // Check if Queue is full
       if (this.isFull()) {
         console.log("Queue Overflow!");
         return;
@@ -403,7 +390,6 @@ class Queue {
       }
     }
     dequeue() {
-      // Check if empty
       if (this.isEmpty()) {
         console.log("Queue Underflow!");
         return;
@@ -445,10 +431,6 @@ class Queue {
     if (a == null || b == null) return false;
     if (a.length !== b.length) return false;
 
-    // If you don't care about the order of the elements inside
-    // the array, you should sort both arrays here.
-    // Please note that calling sort on an array will modify that array.
-    // you might want to clone your array first.
 
     for (var i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) return false;
