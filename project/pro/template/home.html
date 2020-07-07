@@ -22,6 +22,7 @@
     <li><button id='nav2' onclick="my2(event)">A* algorithm</button></li>
     <li><button id='nav3' onclick="my3(event)">BFS</button></li>
     <li><button id='nav4' onclick="my4(event)">DFS</button></li>
+    <li><button id='nav4' onclick="my5(event)">Bidrection Search</button></li>
 
   </ul>
   <div id="message" style="display:block;height:40px;background-color:orange">
@@ -309,28 +310,36 @@ class Stack {
 /////////////////////////
 class Queue {
    constructor(maxSize) {
+      // Set default max size if not provided
       if (isNaN(maxSize)) {
          maxSize = 2000;
       }
       this.maxSize = maxSize;
+      // Init an array that'll contain the queue values.
       this.container = [];
     }
+   // Helper function to display all values while developing
    display() {
       console.log(this.container);
    }
+   // Checks if queue is empty
    isEmpty() {
       return this.container.length === 0;
    }
+   // checks if queue is full
    isFull() {
       return this.container.length >= this.maxSize;
    }
    enqueue(element) {
+      // Check if Queue is full
       if (this.isFull()) {
          console.log("Queue Overflow!"); return;
       }
+      // Since we want to add elements to end, we'll just push them.
       this.container.push(element);
    }
    dequeue() {
+      // Check if empty
       if (this.isEmpty()) {
          console.log("Queue Underflow!");
          return;
@@ -354,23 +363,28 @@ class Queue {
 ////////////////////
   class PriorityQueue {
     constructor(maxSize) {
+      // Set default max size if not provided
       if (isNaN(maxSize)) {
         maxSize = 100;
       }
       this.maxSize = maxSize;
+      // Init an array that'll contain the queue values.
       this.container = [];
     }
+    // Helper function to display all values while developing
     display() {
+      //    console.log(this.container);
     }
     // Checks if queue is empty
     isEmpty() {
       return this.container.length === 0;
     }
-
+    // checks if queue is full
     isFull() {
       return this.container.length >= this.maxSize;
     }
     enqueue(data, priority) {
+      // Check if Queue is full
       if (this.isFull()) {
         console.log("Queue Overflow!");
         return;
@@ -390,6 +404,7 @@ class Queue {
       }
     }
     dequeue() {
+      // Check if empty
       if (this.isEmpty()) {
         console.log("Queue Underflow!");
         return;
@@ -431,6 +446,10 @@ class Queue {
     if (a == null || b == null) return false;
     if (a.length !== b.length) return false;
 
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    // Please note that calling sort on an array will modify that array.
+    // you might want to clone your array first.
 
     for (var i = 0; i < a.length; ++i) {
       if (a[i] !== b[i]) return false;
@@ -649,8 +668,8 @@ async function dfs(g,startNode)
   //st.push(startNode);
 //  st.push(final);
   st.push(startNode);
-  console.log('see the edges');
-  console.log(g.edges);
+  // console.log('see the edges');
+  // console.log(g.edges);
 if(!pass)
 {
   while(st.length>0 )
@@ -683,11 +702,7 @@ if(!pass)
 
 
           }
-
-
                 }
-
-
   }
 
     path=[];
@@ -728,6 +743,10 @@ else {
           propagater('div' + curr.slice(1, ));
         }, 40);
     await sleep(41);
+    setTimeout(function() {
+          propagater2('div' + curr.slice(1, ));
+        }, 40);
+    await sleep(41);
     for(const neighbor of g.edges[curr]){
 
           if(neighbor.weight!=Infinity && !visited.includes(neighbor.node))
@@ -755,12 +774,17 @@ else {
     setTimeout(function() {
           propagater2('div' + curr.slice(1, ));
         }, 40);
+
+    await sleep(41);
+    setTimeout(function() {
+          propagater('div' + curr.slice(1, ));
+        }, 40);
     await sleep(41);
     for(const neighbor of g.edges[curr]){
 
           if(neighbor.weight!=Infinity && !visited.includes(neighbor.node))
           {
-            prev[neighbor.node] = curr;
+            prev2[neighbor.node] = curr;
 
             st.push(neighbor.node);
           }
@@ -769,13 +793,16 @@ else {
 
   path = [];
   curr = pass;
-
-  if (prev2[pass] == null) {
+  console.log('prev1:');
+  console.log(prev);
+  console.log('prev2:');
+  console.log(prev2);
+  if (prev[pass] == null) {
       console.log('TARGET CANNOT BE REACHED');
     } else {
-      while (prev2[curr] != null) {
-        path.push(prev2[curr]);
-        curr = prev2[curr];
+      while (prev[curr] != null) {
+        path.push(prev[curr]);
+        curr = prev[curr];
       }
       path.pop();
     }
@@ -783,17 +810,15 @@ else {
 
     curr = final;
     var path2 = [];
-    if (prev[final] == null) {
+    if (prev2[final] == null) {
       console.log('TARGET CANNOT BE REACHED');
     } else {
-      while (prev[curr] != null) {
-        //    document.getElementById('div'+prev[curr].slice(1,)).style.backgroundColor='#b6eb7a';
-        path2.push(prev[curr]);
-        curr = prev[curr];
+      while (prev2[curr] != null) {
+        path2.push(prev2[curr]);
+        curr = prev2[curr];
       }
       path2.pop();
-      //    console.log('this is the path : ');
-      //    console.log(path);
+
     }
     /////////////////////
     for (i = 0; i < path.length; i++) {
@@ -820,6 +845,82 @@ else {
 
 
 }
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=///
+
+
+async function bidrectional(g)
+  {
+    var visited1=[];
+    var visited2=[];
+    var prev=[];
+    var st1 = [];
+    var st2=[];
+    prev=[];
+    //st.push(startNode);
+  //  st.push(final);
+    st1.push(start);
+    st2.push(final);
+    var curr1;
+    var curr2;
+
+    while(st1.length>0 && st2.length>0)
+        {
+            curr1=st1.shift();
+            curr2=st2.shift();
+
+
+            if(!visited1.includes(curr1))
+            {
+                  visited1.push(curr1);
+                  st1 = st1.filter(i => i !== curr1);
+
+
+            }
+            if(!visited2.includes(curr2))
+            {
+              visited2.push(curr2);
+              st2 = st2.filter(i => i !== curr2);
+
+            }
+
+            if(visited1.includes(curr2) || visited2.includes(curr1))
+                  break;
+            setTimeout(function() {
+                  propagater2('div' + curr1.slice(1, ));
+                }, 40);
+            setTimeout(function() {
+                      propagater2('div' + curr2.slice(1, ));
+                    }, 40);
+            await sleep(41);
+            setTimeout(function() {
+                  propagater('div' + curr1.slice(1, ));
+                }, 40);
+                setTimeout(function() {
+                      propagater('div' + curr2.slice(1, ));
+                    }, 40);
+            await sleep(41);
+            for(const neighbor of g.edges[curr1]){
+
+                  if(neighbor.weight!=Infinity && !visited1.includes(neighbor.node))
+                  {
+                    prev[neighbor.node] = curr1;
+
+                    st1.push(neighbor.node);
+                  }
+                        }
+            for(const neighbor of g.edges[curr2]){
+                    if(neighbor.weight!=Infinity && !visited2.includes(neighbor.node))
+                      {
+                          prev[neighbor.node] = curr2;
+
+                          st2.push(neighbor.node);
+                      }
+
+                    }
+        }
+
+  }
+
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -1132,6 +1233,16 @@ function my4(event){
   g=graphbuild();
   dfs(g,start);
 }
+function my5(event)
+  {
+    document.getElementById(event.target.id).style.backgroundColor = 'green';
+    document.getElementById('message').innerHTML ="DFS is used in unweighted graph and it is not meant for shortest path.";
+    selected_algo='bidrectional';
+    g=graphbuild();
+    bidrectional(g);
+
+
+  }
 
 </script>
 
