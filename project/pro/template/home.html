@@ -69,6 +69,7 @@
   var prev2 = [];
   var selected_algo;
   var distances = [];
+  var distances2=[];
   var middleclicked=false;
   var check_prev_wall = [];
   var obstacles=[];
@@ -658,7 +659,7 @@ class Queue {
   }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-async function dfs(g,startNode)
+async function dfs(g,startNode,animation=true)
 {
   var visited=[];
   var prev=[];
@@ -682,15 +683,21 @@ if(!pass)
           visited.push(curr);
     if(curr==final)
           break;
-    setTimeout(function() {
-          propagater('div' + curr.slice(1, ));
-        }, 40);
-    await sleep(41);
+    if(animation==true)
+    {
+      setTimeout(function() {
+            propagater2('div' + curr.slice(1, ));
+          }, 10);
+      await sleep(11);
 
-    setTimeout(function() {
-          propagater2('div' + curr.slice(1, ));
-        }, 40);
-    await sleep(41);
+      setTimeout(function() {
+            propagater('div' + curr.slice(1, ));
+          }, 10);
+      await sleep(11);
+    }
+    else {
+        propagater('div' + curr.slice(1, ));
+    }
 
     for(const neighbor of g.edges[curr]){
 
@@ -718,10 +725,17 @@ if(!pass)
     }
     document.getElementById('div' + curr.slice(1, )).style.backgroundColor = 'blue';
     for (i in path) {
-        setTimeout(function() {
-          pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+      if(animation==true)
+      {  setTimeout(function() {
+  pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
         }, 24);
     await sleep(25);
+
+      }
+      else {
+        pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+      }
+
 
 
     }
@@ -739,14 +753,20 @@ else {
           visited.push(curr);
     if(curr==pass)
           break;
-    setTimeout(function() {
-          propagater('div' + curr.slice(1, ));
-        }, 40);
-    await sleep(41);
-    setTimeout(function() {
-          propagater2('div' + curr.slice(1, ));
-        }, 40);
-    await sleep(41);
+    if(animation==true)
+    {
+      setTimeout(function() {
+            propagater2('div' + curr.slice(1, ));
+          }, 10);
+      await sleep(11);
+      setTimeout(function() {
+            propagater('div' + curr.slice(1, ));
+          }, 10);
+      await sleep(11);
+    }
+    else {
+        propagater('div' + curr.slice(1, ));
+    }
     for(const neighbor of g.edges[curr]){
 
           if(neighbor.weight!=Infinity && !visited.includes(neighbor.node))
@@ -771,15 +791,21 @@ else {
           visited.push(curr);
     if(curr==final)
           break;
-    setTimeout(function() {
-          propagater2('div' + curr.slice(1, ));
-        }, 40);
-
-    await sleep(41);
+  if(animation==true)
+  {
     setTimeout(function() {
           propagater('div' + curr.slice(1, ));
-        }, 40);
-    await sleep(41);
+        }, 10);
+
+    await sleep(11);
+    setTimeout(function() {
+          propagater2('div' + curr.slice(1, ));
+        }, 10);
+    await sleep(11);
+  }
+else {
+  propagater2('div' + curr.slice(1, ));
+}
     for(const neighbor of g.edges[curr]){
 
           if(neighbor.weight!=Infinity && !visited.includes(neighbor.node))
@@ -826,11 +852,18 @@ else {
     }
     path = path2;
     for (i in path) { //console.log(i);
-
-        setTimeout(function() {
+        if(animation==true)
+        {
+          setTimeout(function() {
+            pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+          }, 24);
+          await sleep(25);
+        }
+        else {
           pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
-        }, 24);
-        await sleep(25);
+
+        }
+
 
     }
 
@@ -848,78 +881,223 @@ else {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=///
 
 
-async function bidrectional(g)
-  {
+async function bidrectional(g,animation=true)
+{
+    var st1=[];
+    var st2=[];
     var visited1=[];
     var visited2=[];
-    var prev=[];
-    var st1 = [];
-    var st2=[];
-    prev=[];
-    //st.push(startNode);
-  //  st.push(final);
+    var intersection;
     st1.push(start);
     st2.push(final);
-    var curr1;
-    var curr2;
-
+    console.log('insied bidirecional');
+    console.log('st1 length='+st1.length+' and st2= '+st2.length);
     while(st1.length>0 && st2.length>0)
-        {
-            curr1=st1.shift();
-            curr2=st2.shift();
+          {
+            console.log('inside the while');
+            var curr1=st1.shift();
+            console.log('curr1='+curr1);
 
 
             if(!visited1.includes(curr1))
-            {
+                {
                   visited1.push(curr1);
-                  st1 = st1.filter(i => i !== curr1);
+                   st1 = st1.filter(i => i !== curr1);
+                }
+            var curr2=st2.shift();
 
-
-            }
             if(!visited2.includes(curr2))
-            {
-              visited2.push(curr2);
-              st2 = st2.filter(i => i !== curr2);
+                {
+                  visited2.push(curr2);
+                  st2 = st2.filter(i => i !== curr2);
+                }
+            console.log('curr1='+curr1+'  and curr2='+curr2);
 
-            }
 
-            if(visited1.includes(curr2) || visited2.includes(curr1))
-                  break;
-            setTimeout(function() {
-                  propagater2('div' + curr1.slice(1, ));
-                }, 40);
-            setTimeout(function() {
-                      propagater2('div' + curr2.slice(1, ));
-                    }, 40);
-            await sleep(41);
-            setTimeout(function() {
-                  propagater('div' + curr1.slice(1, ));
-                }, 40);
-                setTimeout(function() {
-                      propagater('div' + curr2.slice(1, ));
-                    }, 40);
-            await sleep(41);
-            for(const neighbor of g.edges[curr1]){
-
-                  if(neighbor.weight!=Infinity && !visited1.includes(neighbor.node))
-                  {
-                    prev[neighbor.node] = curr1;
-
-                    st1.push(neighbor.node);
+                if(curr1!='no')
+                {
+                  if(animation==true)
+                    {
+                      setTimeout(function() {
+                        propagater('div' + curr1.slice(1, ));
+                      }, 12);
+                    }
+                  else {
+                      propagater('div' + curr1.slice(1, ));
                   }
-                        }
-            for(const neighbor of g.edges[curr2]){
-                    if(neighbor.weight!=Infinity && !visited2.includes(neighbor.node))
-                      {
-                          prev[neighbor.node] = curr2;
+                }
+                else {
+                  await sleep(12);
+                }
 
-                          st2.push(neighbor.node);
-                      }
+                if(curr2!='no')
+                {
+                  if(animation==true)
+                    {
+                      setTimeout(function() {
+                        propagater('div' + curr2.slice(1, ));
+                      }, 12);
 
                     }
-        }
+                    else {
+                        propagater('div' + curr2.slice(1, ));
+                    }
+                }
+                else {
+                  await sleep(12);
+                }
+                if(animation==true)
+                await sleep(13);
+                if(curr1!='no')
+                {
+                  if(animation==true)
+                    {
+                      setTimeout(function() {
+                        propagater('div' + curr1.slice(1, ));
+                      }, 12);
+                    }
+                  else {
+                      propagater('div' + curr1.slice(1, ));
+                  }
+                }
+                else {
+                  await sleep(12);
+                }
+                if(curr2!='no')
+                {
+                  if(animation==true)
+                    {
+                      setTimeout(function() {
+                        propagater('div' + curr2.slice(1, ));
+                      }, 12);
 
+                    }
+                    else {
+                        propagater('div' + curr2.slice(1, ));
+                    }
+                }
+                else {
+                  await sleep(12);
+                }
+                if(animation==true)
+                await sleep(13);
+
+                console.log('st2=');
+                console.log(st2);
+                if((visited1.includes(curr2) || visited2.includes(curr1)) && curr1!='no' && curr2!='no')
+                    {
+                      console.log('intersectino occured at '+curr1);
+                      if(visited1.includes(curr2))
+                        {
+                          intersection=curr2;
+                        }
+                      else {
+                          intersection=curr1;
+                      }
+                      break;
+                    }
+            if(curr1!='no')
+            {
+              for(neighbor of g.edges[curr1])
+                  {
+                    if(!visited1.includes(neighbor.node))
+                    {
+                    prev[neighbor.node]=curr1;
+                    if(neighbor.weight==1)
+                        {
+                                  if(st1.indexOf('no')!=-1)
+                                    {
+                                      st1[st1.indexOf('no')]=neighbor.node;
+                                    }
+                                  else {
+                                    st1.push(neighbor.node);
+                                  }
+                        }
+                    else if(neighbor.weight==5)
+                        {
+                                  st1.push('no');
+                                  st1.push('no');
+                                  st1.push('no');
+                                  st1.push('no');
+                                  st1.push(neighbor.node);
+
+                        }
+                    }
+
+                  }
+            }
+
+
+
+  /////////////////
+          if(curr2!='no')
+          {
+
+            for(neighbor of g.edges[curr2])
+                  {
+                      if(!visited2.includes(neighbor.node))
+                      {
+                        prev2[neighbor.node]=curr2;
+                        if(neighbor.weight==1)
+                            {
+                                      if(st2.indexOf('no')!=-1)
+                                        {
+                                          st2[st2.indexOf('no')]=neighbor.node;
+                                        }
+                                      else {
+                                        st2.push(neighbor.node);
+                                      }
+                            }
+                        else if(neighbor.weight==5)
+                            {
+                                      st2.push('no');
+                                      st2.push('no');
+                                      st2.push('no');
+                                      st2.push('no');
+                                      st2.push(neighbor.node);
+
+                            }
+                      }
+
+                  }
+
+          }
+          }
+///// path for this algorithm
+path=[];
+var curr=intersection;
+while(prev[curr]!=null)
+  {
+    path.push(curr);
+    curr=prev[curr];
   }
+path=path.reverse();
+curr=intersection;
+while(prev2[curr]!=null)
+  {
+    path.push(curr);
+    curr=prev2[curr];
+  }
+
+
+path=path.reverse();
+//////////////////////////
+for (i in path) {
+    if(animation==true)
+    {
+      setTimeout(function() {
+        pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+      }, 24);
+
+        await sleep(25);
+    }
+    else {
+      pathhighlighter('div' + path[path.length - i - 1].slice(1, ));
+    }
+
+}
+
+}
 
 
 
@@ -1194,14 +1372,16 @@ function my3(event)
 
   document.getElementById(event.target.id).style.backgroundColor = 'green';
   selected_algo='bfs';
-
+  animate=true;
   document.getElementById(event.target.id).style.backgroundColor = 'green';
   document.getElementById('message').innerHTML='BFS is used for trvaersal in unweighted graph. So weighted-locks (obstacles) are not available';
   console.log('-----------------------obs');
   console.log(obstacles);
+  console.log('obstacle length: '+obstacles.length);
   for(i in obstacles)
   {
     document.getElementById('div'+obstacles[i].slice(1,)).classList.remove("fa","fa-lock");
+    console.log(i);
   }
   obstacles=[];
     g =graphbuild();
@@ -1225,21 +1405,23 @@ function my4(event){
   document.getElementById(event.target.id).style.backgroundColor = 'green';
   document.getElementById('message').innerHTML ="DFS is used in unweighted graph and it is not meant for shortest path.";
   selected_algo='dfs';
+  animate=true;
   for(i in obstacles)
   {
     document.getElementById('div'+obstacles[i].slice(1,)).classList.remove("fa","fa-lock");
   }
   obstacles=[];
   g=graphbuild();
-  dfs(g,start);
+  dfs(g,start,true);
 }
 function my5(event)
   {
+    animate=true;
     document.getElementById(event.target.id).style.backgroundColor = 'green';
-    document.getElementById('message').innerHTML ="DFS is used in unweighted graph and it is not meant for shortest path.";
+    document.getElementById('message').innerHTML ="bidrectional tries to find shortest path by propagating from both final and start node till the intersectionoccures . It does not give shortest path.";
     selected_algo='bidrectional';
     g=graphbuild();
-    bidrectional(g);
+    bidrectional(g,true);
 
 
   }
@@ -1327,9 +1509,10 @@ function my5(event)
         }
       }
     }
-    else if(e.button==1 &&(!imagedragging)&& selected_algo!='bfs')
+    else if(e.button==1 && (!imagedragging) && (selected_algo!='bfs') && (selected_algo!='dfs'))
     {
       middleclicked = true;
+      console.log('entered in {}}}}}}}{}}}}}}}}}}}} with '+selected_algo+ ' and e.button as '+e.button);
       if (!obstacles.includes('b' + e.target.id.slice(3, )) && e.target.id.slice(0, 3) == 'div') {
 
           //    console.log('entering s='+start+' f='+final+'  curr='+'b'+e.target.id.slice(3,));
@@ -1370,7 +1553,7 @@ function my5(event)
       e.preventDefault();
       rclicked = false;
     }
-    if(e.button == 1 && selected_algo!='bfs')
+    if(e.button == 1 && (selected_algo!='bfs' || selected_algo!='dfs'))
     {
       e.preventDefault();
       middleclicked=false;
@@ -1392,7 +1575,7 @@ function my5(event)
         }
       }
     }
-    else if(middleclicked == true && (!imagedragging) && selected_algo!='bfs')
+    else if(middleclicked == true && (!imagedragging) && (selected_algo!='bfs' || selected_algo!='dfs'))
     {
       e.preventDefault();
       if (!obstacles.includes(b_id)) {
@@ -1418,7 +1601,9 @@ function my5(event)
       if (ind > -1) {
         obstacles.splice(ind, 1);
       }
+      console.log('we are trying to remove lock of '+e.target.id);
       document.getElementById(e.target.id).classList.remove("fa","fa-lock");
+
 
       }
     } else if (animate && imagedragging) {
@@ -1459,7 +1644,7 @@ function my5(event)
                                                   distances=g.djikstraAlgorithm(start);
                                                   animation_with_pass(false,true);
                                                   check_prev_wall=wall.slice();
-                                                  obstacles=check_prev_obstacles.slice();
+                                                  check_prev_obstacles=obstacles.slice();
                                               }
 
 
@@ -1482,6 +1667,7 @@ function my5(event)
                               }
                             else if(selected_algo=='bfs')
                                 {
+                                  obstacles=[];
                                   graphbuild();
                                   if(pass)
                                     {
@@ -1497,7 +1683,7 @@ function my5(event)
                                               distances=g.bfs(start);
                                               animation_with_pass(false,true);
                                               check_prev_wall=wall.slice();
-                                              obstacles=check_prev_obstacles.slice();
+                                              check_prev_obstacles=obstacles.slice();
                                           }
 
 
@@ -1517,6 +1703,23 @@ function my5(event)
                                         }
                                     }
                                 }
+                            else if(selected_algo=='dfs')
+                            {
+
+                              for(i in obstacles)
+                              {
+                                document.getElementById('div'+obstacles[i].slice(1,)).classList.remove("fa","fa-lock");
+                              }
+                              obstacles=[];
+                              g=graphbuild();
+                              dfs(g,start,false);
+
+                            }
+                            else if(selected_algo=='bidrectional')
+                             {console.log('YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
+                              g=graphbuild();
+                              bidrectional(g,false);
+                            }
       }
     //end of end image dragging
     else if(dragImg.id=='pass')
@@ -1584,6 +1787,20 @@ function my5(event)
                   check_prev_obstacles=obstacles.slice();
                 }
               }
+              else if(selected_algo=='dfs')
+              {
+                for(i in obstacles)
+                {
+                  document.getElementById('div'+obstacles[i].slice(1,)).classList.remove("fa","fa-lock");
+                }
+                obstacles=[];
+                g=graphbuild();
+                dfs(g,start,false);
+              }
+              else if(selected_algo=='bidrectional') {
+                g=graphbuild();
+                bidrectional(g,false);
+              }
       }  //end of pass image draging
     else if (dragImg.id=='start')
     {
@@ -1627,7 +1844,21 @@ function my5(event)
             animation_with_pass(false,true);
           }
         }
+        else if(selected_algo=='dfs')
+        {
+          for(i in obstacles)
+          {
+            document.getElementById('div'+obstacles[i].slice(1,)).classList.remove("fa","fa-lock");
+          }
+          obstacles=[];
 
+          g=graphbuild();
+          dfs(g,start,false);
+        }
+        else if(selected_algo=='bidrectional') {
+          g=graphbuild();
+          bidrectional(g,false);
+        }
     }
   }
 
